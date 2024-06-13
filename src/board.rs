@@ -53,33 +53,38 @@ impl Board {
         }
 
         self.tetromino.pos.x += self.direction.x;
-        if self.check_collision(self.tetromino.pos) {
+        if self.check_collision(None) {
             self.tetromino.pos.x -= self.direction.x;
         }
         self.tetromino.pos.y += self.direction.y;
-        if self.check_collision(self.tetromino.pos) {
+        if self.check_collision(None) {
             self.tetromino.pos.y -= self.direction.y;
         }
     }
 
     fn check_game_end(&mut self) {
-        if self.check_collision(self.tetromino.pos + Vec2::new(0.0, 1.0)) {
+        if self.check_collision(Some(Vec2::new(0.0, 1.0))) {
             self.place_tetromino();
             self.tetromino = new_tetromino();
         }
     }
 
-    fn check_collision(&mut self, pos: Vec2) -> bool {
+    fn check_collision(&mut self, offset: Option<Vec2>) -> bool {
+        let offset = offset.unwrap_or(Vec2::new(0.0, 0.0));
         for y in 0..4 {
             for x in 0..4 {
                 if self.tetromino.shape[y][x] {
-                    let new_x = pos.x as i32 + x as i32;
-                    let new_y = pos.y as i32 + y as i32;
+                    let mut index = Vec2::new(x as f32, y as f32);
+                    index += self.tetromino.pos + offset;
 
-                    if new_x < 0 || new_x >= BOARD_WIDTH as i32 || new_y >= BOARD_HEIGHT as i32 {
+                    if index.x < 0.0
+                        || index.x >= BOARD_WIDTH as f32
+                        || index.y >= BOARD_HEIGHT as f32
+                    {
                         return true;
                     }
-                    if new_y > 0 && self.board[new_y as usize][new_x as usize] != (0, 0, 0) {
+                    if index.y > 0.0 && self.board[index.y as usize][index.x as usize] != (0, 0, 0)
+                    {
                         return true;
                     }
                 }
@@ -90,7 +95,7 @@ impl Board {
 
     fn drop_tetromino(&mut self) {
         for _ in 0..BOARD_HEIGHT + 1 {
-            if !self.check_collision(self.tetromino.pos) {
+            if !self.check_collision(None) {
                 self.tetromino.pos.y += 1.0;
             }
         }
@@ -116,22 +121,14 @@ impl Board {
         let old = self.tetromino.clone();
         self.tetromino.rotate();
 
-        let left = self.check_collision(self.tetromino.pos + Vec2::new(-2.0, 0.0));
-        let right = self.check_collision(self.tetromino.pos + Vec2::new(2.0, 0.0));
+        for dx in [0, -1, 1, -2, 2] {
+            self.tetromino.pos.x = old.pos.x + dx as f32;
+            if !self.check_collision(None) {
+                return;
+            }
+        }
 
-        if left && right {
-            self.tetromino = old;
-        }
-        if right {
-            while self.check_collision(self.tetromino.pos) {
-                self.tetromino.pos.x -= 1.0;
-            }
-        }
-        if left {
-            while self.check_collision(self.tetromino.pos) {
-                self.tetromino.pos.x += 1.0;
-            }
-        }
+        self.tetromino = old;
     }
 
     fn draw(&mut self) {

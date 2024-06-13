@@ -97,43 +97,26 @@ pub fn draw_block(x: f32, y: f32, color: (u8, u8, u8)) {
     let y_loc = y * BLOCK_SIZE;
 
     draw_rectangle(
-        x_loc + 2.0,
-        y_loc + 2.0,
-        BLOCK_SIZE,
-        BLOCK_SIZE,
+        x_loc + 1.0,
+        y_loc + 1.0,
+        BLOCK_SIZE - 1.0,
+        BLOCK_SIZE - 1.0,
         Color::from_rgba(color.0 / 3, color.1 / 3, color.2 / 3, 150),
     );
 
     draw_rectangle(
         x_loc,
         y_loc,
-        BLOCK_SIZE,
-        BLOCK_SIZE,
-        Color::from_rgba(color.0 / 2, color.1 / 2, color.2 / 2, 255),
+        BLOCK_SIZE - 2.0,
+        BLOCK_SIZE - 2.0,
+        Color::from_rgba(color.0 / 6, color.1 / 6, color.2 / 6, 255),
     );
 
-    for i in 0..10 {
-        let factor = i as f32 / 10.0;
-        let red =
-            (color.0 as f32 * (1.0 - factor) + (color.0 as f32 * 1.2).min(255.0) * factor) as u8;
-        let green =
-            (color.1 as f32 * (1.0 - factor) + (color.1 as f32 * 1.2).min(255.0) * factor) as u8;
-        let blue =
-            (color.2 as f32 * (1.0 - factor) + (color.2 as f32 * 1.2).min(255.0) * factor) as u8;
-        draw_rectangle(
-            x_loc + 1.0,
-            y_loc + 1.0 + (BLOCK_SIZE - 2.0) * factor,
-            BLOCK_SIZE - 2.0,
-            (BLOCK_SIZE - 2.0) / 10.0,
-            Color::from_rgba(red, green, blue, 255),
-        );
-    }
-
     draw_rectangle(
-        x_loc + 3.0,
-        y_loc + 3.0,
-        BLOCK_SIZE - 6.0,
-        BLOCK_SIZE - 6.0,
+        x_loc + 1.0,
+        y_loc + 1.0,
+        BLOCK_SIZE - 4.0,
+        BLOCK_SIZE - 4.0,
         Color::from_rgba(color.0, color.1, color.2, 255),
     );
 }
