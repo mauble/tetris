@@ -19,8 +19,6 @@ fn conf() -> Conf {
 #[macroquad::main(conf)]
 async fn main() {
     let mut board1 = Board::new(
-        new_board(),
-        new_tetromino(),
         vec![
             KeyCode::A,
             KeyCode::D,
@@ -29,11 +27,8 @@ async fn main() {
             KeyCode::Space,
         ],
         0,
-        None,
     );
     let mut board2 = Board::new(
-        new_board(),
-        new_tetromino(),
         vec![
             KeyCode::Left,
             KeyCode::Right,
@@ -42,11 +37,10 @@ async fn main() {
             KeyCode::RightShift,
         ],
         1,
-        None,
     );
 
     loop {
-        clear_background(WHITE);
+        clear_background(get_color(UI_COLOR, 255));
 
         board1.run();
         board2.run();
