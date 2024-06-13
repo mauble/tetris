@@ -187,12 +187,14 @@ impl Board {
         }
 
         let new_lines = cleared_lines.len();
-        self.lines += new_lines as i32;
-        self.score +=
-            vec![40, 100, 300, 1200, 0][new_lines - 1] * (self.level + 1) + 2 * (self.level + 1);
-        if self.level != self.lines / 10 {
-            self.level = self.lines / 10;
-            self.gravity_delay = 1000 as f64 / (self.level + 1) as f64 + 200.0;
+        if new_lines > 0 {
+            self.lines += new_lines as i32;
+            self.score += vec![40, 100, 300, 1200, 0][new_lines - 1] * (self.level + 1)
+                + 2 * (self.level + 1);
+            if self.level != self.lines / 10 {
+                self.level = self.lines / 10;
+                self.gravity_delay = 1000 as f64 / (self.level + 1) as f64 + 200.0;
+            }
         }
     }
 
