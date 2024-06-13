@@ -15,6 +15,10 @@ pub struct Board {
     pub board: Vec<Vec<(u8, u8, u8)>>,
     pub direction: Vec2,
 
+    pub level: i32,
+    pub score: i32,
+    pub lines: i32,
+
     pub horizontal_delay: f64,
     pub drop_delay: f64,
     pub gravity_delay: f64,
@@ -37,6 +41,10 @@ impl Board {
             bag: Vec::new(),
             board: vec![vec![BOARD_COLOR; BOARD_WIDTH]; BOARD_HEIGHT],
             direction: Vec2::new(0.0, 0.0),
+
+            level: 0,
+            score: 0,
+            lines: 0,
 
             horizontal_delay: 110.0,
             drop_delay: 20.0,
@@ -176,6 +184,15 @@ impl Board {
         for &line in cleared_lines.iter() {
             self.board.remove(line);
             self.board.insert(0, vec![BOARD_COLOR; BOARD_WIDTH]);
+        }
+
+        let new_lines = cleared_lines.len();
+        self.lines += new_lines as i32;
+        self.score +=
+            vec![40, 100, 300, 1200, 0][new_lines - 1] * (self.level + 1) + 2 * (self.level + 1);
+        if self.level != self.lines / 10 {
+            self.level = self.lines / 10;
+            self.gravity_delay = 1000 as f64 / (self.level + 1) as f64 + 200.0;
         }
     }
 
