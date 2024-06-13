@@ -34,9 +34,9 @@ impl Board {
             controls,
             offset: offset * GAME_WIDTH as u32,
 
-            t1: Tetromino::new(SHAPES[0].width, SHAPES[0].shape, SHAPES[0].color, None),
-            t2: Tetromino::new(SHAPES[0].width, SHAPES[0].shape, SHAPES[0].color, None),
-            p1: Tetromino::new(SHAPES[0].width, SHAPES[0].shape, SHAPES[0].color, None),
+            t1: Tetromino::new(0, None),
+            t2: Tetromino::new(0, None),
+            p1: Tetromino::new(0, None),
 
             bag: Vec::new(),
             board: vec![vec![BOARD_COLOR; BOARD_WIDTH]; BOARD_HEIGHT],
@@ -46,8 +46,8 @@ impl Board {
             score: 0,
             lines: 0,
 
-            horizontal_delay: 110.0,
-            drop_delay: 20.0,
+            horizontal_delay: 120.0,
+            drop_delay: 40.0,
             gravity_delay: 1000.0,
 
             last_horizontal: 0.0,
@@ -55,22 +55,22 @@ impl Board {
             last_gravity: 0.0,
         };
 
-        board.refill_bag();
+        board.update_bag();
         board
     }
 
     pub fn run(&mut self) {
         self.input();
         self.update_phantom();
-        self.game_loop();
         self.draw();
     }
 
-    fn refill_bag(&mut self) {
+    fn update_bag(&mut self) {
         if self.bag.is_empty() {
             self.bag = SHAPES
                 .iter()
-                .map(|shape| Tetromino::new(shape.width, shape.shape, shape.color, None))
+                .enumerate()
+                .map(|index| Tetromino::new(index.0, None))
                 .collect();
             self.bag.shuffle();
         }
@@ -121,11 +121,6 @@ impl Board {
         self.t1.pos.y += self.direction.y;
         if self.check_collision(self.t1, None) {
             self.t1.pos.y -= self.direction.y;
-        }
-    }
-
-    fn game_loop(&mut self) {
-        if self.check_collision(self.t1, Some(Vec2::new(0.0, 1.0))) {
             if self.direction.y == 1.0 {
                 self.place_tetromino();
             }
@@ -198,6 +193,35 @@ impl Board {
         }
     }
 
+    fn check_game_over(&mut self) {
+        for x in 0..4 {
+            if self.board[0][x] != BOARD_COLOR {
+                self.t1 = Tetromino::new(0, None);
+                self.t2 = Tetromino::new(0, None);
+                self.p1 = Tetromino::new(0, None);
+
+                self.bag.clear();
+                self.board = vec![vec![BOARD_COLOR; BOARD_WIDTH]; BOARD_HEIGHT];
+                self.direction = Vec2::new(0.0, 0.0);
+
+                self.level = 0;
+                self.score = 0;
+                self.lines = 0;
+
+                self.horizontal_delay = 120.0;
+                self.drop_delay = 40.0;
+                self.gravity_delay = 1000.0;
+
+                self.last_horizontal = 0.0;
+                self.last_drop = 0.0;
+                self.last_gravity = 0.0;
+
+                self.update_bag();
+                return;
+            }
+        }
+    }
+
     fn place_tetromino(&mut self) {
         for y in 0..4 {
             for x in 0..4 {
@@ -211,7 +235,8 @@ impl Board {
             }
         }
         self.clear_lines();
-        self.refill_bag();
+        self.update_bag();
+        self.check_game_over();
     }
 
     fn rotate_tetromino(&mut self) {
