@@ -14,8 +14,8 @@ pub const BOARD_COLOR: (u8, u8, u8) = (20, 20, 20);
 pub const UI_COLOR: (u8, u8, u8) = (30, 30, 30);
 // pub const FONT_COLOR: (u8, u8, u8) = (255, 255, 255);
 
-pub const SHAPES: [Tetromino; 7] = [
-    Tetromino {
+pub const SHAPES: [TetrominoTemplate; 7] = [
+    TetrominoTemplate {
         width: 4,
         shape: [
             [false, false, false, false],
@@ -24,9 +24,8 @@ pub const SHAPES: [Tetromino; 7] = [
             [false, false, false, false],
         ],
         color: (0, 190, 225),
-        pos: Vec2::new(0.0, 0.0),
     },
-    Tetromino {
+    TetrominoTemplate {
         width: 3,
         shape: [
             [false, false, false, false],
@@ -35,9 +34,8 @@ pub const SHAPES: [Tetromino; 7] = [
             [false, false, false, false],
         ],
         color: (60, 60, 230),
-        pos: Vec2::new(0.0, 0.0),
     },
-    Tetromino {
+    TetrominoTemplate {
         width: 3,
         shape: [
             [false, false, false, false],
@@ -46,9 +44,8 @@ pub const SHAPES: [Tetromino; 7] = [
             [false, false, false, false],
         ],
         color: (220, 150, 50),
-        pos: Vec2::new(0.0, 0.0),
     },
-    Tetromino {
+    TetrominoTemplate {
         width: 4,
         shape: [
             [false, false, false, false],
@@ -57,9 +54,8 @@ pub const SHAPES: [Tetromino; 7] = [
             [false, false, false, false],
         ],
         color: (240, 215, 0),
-        pos: Vec2::new(0.0, 0.0),
     },
-    Tetromino {
+    TetrominoTemplate {
         width: 3,
         shape: [
             [false, false, false, false],
@@ -68,9 +64,8 @@ pub const SHAPES: [Tetromino; 7] = [
             [false, false, false, false],
         ],
         color: (135, 220, 130),
-        pos: Vec2::new(0.0, 0.0),
     },
-    Tetromino {
+    TetrominoTemplate {
         width: 3,
         shape: [
             [false, false, false, false],
@@ -79,9 +74,8 @@ pub const SHAPES: [Tetromino; 7] = [
             [false, false, false, false],
         ],
         color: (110, 40, 230),
-        pos: Vec2::new(0.0, 0.0),
     },
-    Tetromino {
+    TetrominoTemplate {
         width: 3,
         shape: [
             [false, false, false, false],
@@ -90,7 +84,6 @@ pub const SHAPES: [Tetromino; 7] = [
             [false, false, false, false],
         ],
         color: (220, 60, 90),
-        pos: Vec2::new(0.0, 0.0),
     },
 ];
 
