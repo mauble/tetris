@@ -18,7 +18,11 @@ fn conf() -> Conf {
 
 #[macroquad::main(conf)]
 async fn main() {
+    let font = load_ttf_font(FONT_PATH).await.unwrap();
+    // let icon = load_image(ICON_PATH).await.unwrap();
+
     let mut board1 = Board::new(
+        &font,
         vec![
             KeyCode::A,
             KeyCode::D,
@@ -29,6 +33,7 @@ async fn main() {
         0,
     );
     let mut board2 = Board::new(
+        &font,
         vec![
             KeyCode::Left,
             KeyCode::Right,

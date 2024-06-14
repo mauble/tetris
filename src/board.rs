@@ -4,20 +4,17 @@ use macroquad::prelude::*;
 use rand::ChooseRandom;
 
 pub struct Board {
+    pub font: Font,
     pub controls: Vec<KeyCode>,
     pub offset: u32,
+
+    pub board: Vec<Vec<(u8, u8, u8)>>,
+    pub bag: Vec<Tetromino>,
+    pub direction: Vec2,
 
     pub t1: Tetromino,
     pub t2: Tetromino,
     pub p1: Tetromino,
-
-    pub bag: Vec<Tetromino>,
-    pub board: Vec<Vec<(u8, u8, u8)>>,
-    pub direction: Vec2,
-
-    pub level: i32,
-    pub score: i32,
-    pub lines: i32,
 
     pub horizontal_delay: f64,
     pub drop_delay: f64,
@@ -26,25 +23,26 @@ pub struct Board {
     pub last_horizontal: f64,
     pub last_drop: f64,
     pub last_gravity: f64,
+
+    pub level: i32,
+    pub score: i32,
+    pub lines: i32,
 }
 
 impl Board {
-    pub fn new(controls: Vec<KeyCode>, offset: u32) -> Self {
+    pub fn new(font: &Font, controls: Vec<KeyCode>, offset: u32) -> Self {
         let mut board = Board {
+            font: font.clone(),
             controls,
             offset: offset * GAME_WIDTH as u32,
+
+            board: vec![vec![BOARD_COLOR; BOARD_WIDTH]; BOARD_HEIGHT],
+            bag: Vec::new(),
+            direction: Vec2::new(0.0, 0.0),
 
             t1: Tetromino::new(0, None),
             t2: Tetromino::new(0, None),
             p1: Tetromino::new(0, None),
-
-            bag: Vec::new(),
-            board: vec![vec![BOARD_COLOR; BOARD_WIDTH]; BOARD_HEIGHT],
-            direction: Vec2::new(0.0, 0.0),
-
-            level: 0,
-            score: 0,
-            lines: 0,
 
             horizontal_delay: 120.0,
             drop_delay: 40.0,
@@ -53,6 +51,10 @@ impl Board {
             last_horizontal: 0.0,
             last_drop: 0.0,
             last_gravity: 0.0,
+
+            level: 0,
+            score: 0,
+            lines: 0,
         };
 
         board.update_bag();
@@ -103,7 +105,11 @@ impl Board {
         }
 
         if is_key_pressed(self.controls[3]) {
+            let old = self.t1.shape;
             self.rotate_tetromino();
+            if old != self.t1.shape && self.check_collision(self.t1, Some(Vec2::new(0.0, 1.0))) {
+                self.last_gravity = time;
+            }
         }
         if is_key_pressed(self.controls[4]) {
             self.drop_tetromino();
@@ -114,16 +120,13 @@ impl Board {
             self.last_gravity = time;
         }
 
-        self.t1.pos.x += self.direction.x;
-        if self.check_collision(self.t1, None) {
-            self.t1.pos.x -= self.direction.x;
+        if !self.check_collision(self.t1, Some(Vec2::new(self.direction.x, 0.0))) {
+            self.t1.pos.x += self.direction.x;
         }
-        self.t1.pos.y += self.direction.y;
-        if self.check_collision(self.t1, None) {
-            self.t1.pos.y -= self.direction.y;
-            if self.direction.y == 1.0 {
-                self.place_tetromino();
-            }
+        if !self.check_collision(self.t1, Some(Vec2::new(0.0, self.direction.y))) {
+            self.t1.pos.y += self.direction.y;
+        } else if self.direction.y == 1.0 {
+            self.place_tetromino();
         }
     }
 
@@ -155,11 +158,10 @@ impl Board {
     fn update_phantom(&mut self) {
         self.p1 = self.t1.clone();
         for _ in 0..BOARD_HEIGHT + 1 {
-            if !self.check_collision(self.p1, None) {
+            if !self.check_collision(self.p1, Some(Vec2::new(0.0, 1.0))) {
                 self.p1.pos.y += 1.0;
             }
         }
-        self.p1.pos.y -= 1.0;
     }
 
     fn drop_tetromino(&mut self) {
@@ -182,14 +184,12 @@ impl Board {
         }
 
         let new_lines = cleared_lines.len();
-        if new_lines > 0 {
-            self.lines += new_lines as i32;
-            self.score += vec![40, 100, 300, 1200, 0][new_lines - 1] * (self.level + 1)
-                + 2 * (self.level + 1);
-            if self.level != self.lines / 10 {
-                self.level = self.lines / 10;
-                self.gravity_delay = 1000 as f64 / (self.level + 1) as f64 + 200.0;
-            }
+        self.lines += new_lines as i32;
+        self.score +=
+            vec![0, 40, 100, 300, 1200][new_lines] * (self.level + 1) + 2 * (self.level + 1);
+        if self.level != self.lines / 10 {
+            self.level = self.lines / 10;
+            self.gravity_delay = 1000 as f64 / (self.level + 1) as f64 + 200.0;
         }
     }
 
@@ -268,5 +268,12 @@ impl Board {
         self.p1.draw(self.offset, true, false);
         self.t1.draw(self.offset, false, false);
         self.t2.draw(self.offset, false, true);
+
+        draw_ui_text(&self.font, "Score".to_string(), self.offset, 0.0);
+        draw_ui_text(&self.font, self.score.to_string(), self.offset, 1.5);
+        draw_ui_text(&self.font, "Lines".to_string(), self.offset, 4.5);
+        draw_ui_text(&self.font, self.lines.to_string(), self.offset, 6.0);
+        draw_ui_text(&self.font, "Level".to_string(), self.offset, 9.0);
+        draw_ui_text(&self.font, self.level.to_string(), self.offset, 10.5);
     }
 }

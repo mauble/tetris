@@ -8,11 +8,16 @@ pub const BOARD_HEIGHT: usize = 20;
 pub const GAME_WIDTH: usize = BOARD_WIDTH + 5;
 
 pub const DEFAULT_TETROMINO_POS: Vec2 = Vec2::new((BOARD_WIDTH / 2 - 2) as f32, -1.0);
-pub const NEXT_TETROMINO_POS: Vec2 = Vec2::new(BOARD_WIDTH as f32 + 0.5, 4.0);
+pub const NEXT_TETROMINO_POS: Vec2 = Vec2::new(BOARD_WIDTH as f32 + 0.5, 1.0);
 
 pub const BOARD_COLOR: (u8, u8, u8) = (20, 20, 20);
 pub const UI_COLOR: (u8, u8, u8) = (30, 30, 30);
-// pub const FONT_COLOR: (u8, u8, u8) = (255, 255, 255);
+pub const FONT_COLOR: (u8, u8, u8) = (255, 255, 255);
+
+pub const FONT_SIZE: u16 = 36;
+
+pub const FONT_PATH: &'static str = "./assets/font.ttf";
+// pub const ICON_PATH: &'static str = "./assets/icon.ttf";
 
 pub const SHAPES: [TetrominoTemplate; 7] = [
     TetrominoTemplate {
@@ -86,6 +91,21 @@ pub const SHAPES: [TetrominoTemplate; 7] = [
         color: (220, 60, 90),
     },
 ];
+
+pub fn draw_ui_text(font: &Font, text: String, x_offset: u32, y: f32) {
+    let center = get_text_center(&text, Some(&font), FONT_SIZE, 1.0, 0.0);
+    draw_text_ex(
+        &text,
+        (BOARD_WIDTH as f32 + x_offset as f32 + 2.5) * BLOCK_SIZE - center.x,
+        (y + NEXT_TETROMINO_POS.y + 6.5) * BLOCK_SIZE,
+        TextParams {
+            font_size: FONT_SIZE,
+            font: Some(&font),
+            color: get_color(FONT_COLOR, 255),
+            ..Default::default()
+        },
+    );
+}
 
 pub fn get_current_time() -> u128 {
     return SystemTime::now()
