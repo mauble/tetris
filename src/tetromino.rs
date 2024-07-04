@@ -1,7 +1,7 @@
 use crate::global::*;
 use macroquad::prelude::*;
 
-pub struct TetrominoTemplate {
+pub struct Template {
     pub width: u8,
     pub shape: [[bool; 4]; 4],
     pub color: (u8, u8, u8),
@@ -9,7 +9,6 @@ pub struct TetrominoTemplate {
 
 #[derive(Clone, Copy)]
 pub struct Tetromino {
-    pub id: usize,
     pub width: u8,
     pub shape: [[bool; 4]; 4],
     pub color: (u8, u8, u8),
@@ -19,7 +18,6 @@ pub struct Tetromino {
 impl Tetromino {
     pub fn new(id: usize, pos: Option<Vec2>) -> Self {
         Tetromino {
-            id,
             pos: pos.unwrap_or(DEFAULT_TETROMINO_POS),
             width: SHAPES[id].width,
             shape: SHAPES[id].shape,

@@ -19,8 +19,8 @@ pub const FONT_SIZE: u16 = 36;
 pub const FONT_PATH: &'static str = "./assets/font.ttf";
 // pub const ICON_PATH: &'static str = "./assets/icon.ttf";
 
-pub const SHAPES: [TetrominoTemplate; 7] = [
-    TetrominoTemplate {
+pub const SHAPES: [Template; 7] = [
+    Template {
         width: 4,
         shape: [
             [false, false, false, false],
@@ -30,7 +30,7 @@ pub const SHAPES: [TetrominoTemplate; 7] = [
         ],
         color: (0, 190, 225),
     },
-    TetrominoTemplate {
+    Template {
         width: 3,
         shape: [
             [false, false, false, false],
@@ -40,7 +40,7 @@ pub const SHAPES: [TetrominoTemplate; 7] = [
         ],
         color: (60, 60, 230),
     },
-    TetrominoTemplate {
+    Template {
         width: 3,
         shape: [
             [false, false, false, false],
@@ -50,7 +50,7 @@ pub const SHAPES: [TetrominoTemplate; 7] = [
         ],
         color: (220, 150, 50),
     },
-    TetrominoTemplate {
+    Template {
         width: 4,
         shape: [
             [false, false, false, false],
@@ -60,7 +60,7 @@ pub const SHAPES: [TetrominoTemplate; 7] = [
         ],
         color: (240, 215, 0),
     },
-    TetrominoTemplate {
+    Template {
         width: 3,
         shape: [
             [false, false, false, false],
@@ -70,7 +70,7 @@ pub const SHAPES: [TetrominoTemplate; 7] = [
         ],
         color: (135, 220, 130),
     },
-    TetrominoTemplate {
+    Template {
         width: 3,
         shape: [
             [false, false, false, false],
@@ -80,7 +80,7 @@ pub const SHAPES: [TetrominoTemplate; 7] = [
         ],
         color: (110, 40, 230),
     },
-    TetrominoTemplate {
+    Template {
         width: 3,
         shape: [
             [false, false, false, false],
