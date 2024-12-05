@@ -107,7 +107,7 @@ pub fn draw_block(x: f32, y: f32, color: (u8, u8, u8), phantom: bool) {
             BLOCK_SIZE,
             BLOCK_SIZE,
             1.0,
-            Color::from_rgba(UI_COLOR.0, UI_COLOR.1, UI_COLOR.2, 255),
+            get_color(UI_COLOR, 255),
         );
         draw_rectangle(
             x_loc + 4.0,
