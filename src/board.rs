@@ -4,17 +4,16 @@ use macroquad::prelude::*;
 use rand::ChooseRandom;
 
 pub struct Board {
-    pub font: Font,
     pub controls: Vec<KeyCode>,
     pub offset: u32,
 
     pub board: Vec<Vec<(u8, u8, u8)>>,
-    pub bag: Vec<Tetromino>,
+    pub bag: Vec<usize>,
     pub direction: Vec2,
 
-    pub t1: Tetromino,
-    pub t2: Tetromino,
-    pub p1: Tetromino,
+    pub piece: Tetromino,
+    pub preview: Tetromino,
+    pub phantom: Tetromino,
 
     pub horizontal_delay: f64,
     pub drop_delay: f64,
@@ -30,9 +29,8 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn new(font: &Font, controls: Vec<KeyCode>, offset: u32) -> Self {
+    pub fn new(controls: Vec<KeyCode>, offset: u32) -> Self {
         let mut board = Board {
-            font: font.clone(),
             controls,
             offset: offset * GAME_WIDTH as u32,
 
@@ -40,9 +38,9 @@ impl Board {
             bag: Vec::new(),
             direction: Vec2::new(0.0, 0.0),
 
-            t1: Tetromino::new(0, None),
-            t2: Tetromino::new(0, None),
-            p1: Tetromino::new(0, None),
+            piece: Tetromino::new(0, None, None, None),
+            phantom: Tetromino::new(0, None, None, None),
+            preview: Tetromino::new(0, None, None, None),
 
             horizontal_delay: 120.0,
             drop_delay: 40.0,
@@ -58,28 +56,26 @@ impl Board {
         };
 
         board.update_bag();
-        board
+        return board;
     }
 
     pub fn run(&mut self) {
         self.input();
         self.update_phantom();
-        self.draw();
     }
 
     fn update_bag(&mut self) {
         if self.bag.is_empty() {
-            self.bag = SHAPES
-                .iter()
-                .enumerate()
-                .map(|index| Tetromino::new(index.0, None))
-                .collect();
+            self.bag = SHAPES.iter().enumerate().map(|(index, _)| index).collect();
             self.bag.shuffle();
         }
-        self.t1 = self.t2;
-        self.t1.pos = DEFAULT_TETROMINO_POS;
-        self.t2 = self.bag.pop().unwrap();
-        self.t2.pos = NEXT_TETROMINO_POS;
+
+        self.piece = self.preview.clone();
+        self.piece.center = false;
+        self.piece.pos = DEFAULT_TETROMINO_POS;
+
+        self.preview = Tetromino::new(self.bag.pop().unwrap(), None, None, Some(true));
+        self.preview.pos = NEXT_TETROMINO_POS;
     }
 
     fn input(&mut self) {
@@ -105,9 +101,11 @@ impl Board {
         }
 
         if is_key_pressed(self.controls[3]) {
-            let old = self.t1.shape;
+            let old = self.piece.shape;
             self.rotate_tetromino();
-            if old != self.t1.shape && self.check_collision(self.t1, Some(Vec2::new(0.0, 1.0))) {
+            if old != self.piece.shape
+                && self.check_collision(self.piece, Some(Vec2::new(0.0, 1.0)))
+            {
                 self.last_gravity = time;
             }
         }
@@ -120,11 +118,11 @@ impl Board {
             self.last_gravity = time;
         }
 
-        if !self.check_collision(self.t1, Some(Vec2::new(self.direction.x, 0.0))) {
-            self.t1.pos.x += self.direction.x;
+        if !self.check_collision(self.piece, Some(Vec2::new(self.direction.x, 0.0))) {
+            self.piece.pos.x += self.direction.x;
         }
-        if !self.check_collision(self.t1, Some(Vec2::new(0.0, self.direction.y))) {
-            self.t1.pos.y += self.direction.y;
+        if !self.check_collision(self.piece, Some(Vec2::new(0.0, self.direction.y))) {
+            self.piece.pos.y += self.direction.y;
         } else if self.direction.y == 1.0 {
             self.place_tetromino();
         }
@@ -152,20 +150,21 @@ impl Board {
                 }
             }
         }
-        false
+        return false;
     }
 
     fn update_phantom(&mut self) {
-        self.p1 = self.t1.clone();
+        self.phantom = self.piece.clone();
+        self.phantom.phantom = true;
         for _ in 0..BOARD_HEIGHT + 1 {
-            if !self.check_collision(self.p1, Some(Vec2::new(0.0, 1.0))) {
-                self.p1.pos.y += 1.0;
+            if !self.check_collision(self.phantom, Some(Vec2::new(0.0, 1.0))) {
+                self.phantom.pos.y += 1.0;
             }
         }
     }
 
     fn drop_tetromino(&mut self) {
-        self.t1 = self.p1;
+        self.piece = self.phantom;
         self.place_tetromino();
     }
 
@@ -194,29 +193,9 @@ impl Board {
     }
 
     fn check_game_over(&mut self) {
-        for x in 0..4 {
+        for x in 0..BOARD_WIDTH {
             if self.board[0][x] != BOARD_COLOR {
-                self.t1 = Tetromino::new(0, None);
-                self.t2 = Tetromino::new(0, None);
-                self.p1 = Tetromino::new(0, None);
-
-                self.bag.clear();
-                self.board = vec![vec![BOARD_COLOR; BOARD_WIDTH]; BOARD_HEIGHT];
-                self.direction = Vec2::new(0.0, 0.0);
-
-                self.level = 0;
-                self.score = 0;
-                self.lines = 0;
-
-                self.horizontal_delay = 120.0;
-                self.drop_delay = 40.0;
-                self.gravity_delay = 1000.0;
-
-                self.last_horizontal = 0.0;
-                self.last_drop = 0.0;
-                self.last_gravity = 0.0;
-
-                self.update_bag();
+                *self = Board::new(self.controls.clone(), self.offset);
                 return;
             }
         }
@@ -225,11 +204,11 @@ impl Board {
     fn place_tetromino(&mut self) {
         for y in 0..4 {
             for x in 0..4 {
-                if self.t1.shape[y][x] {
-                    let board_x = (self.t1.pos.x as i32 + x as i32) as usize;
-                    let board_y = (self.t1.pos.y as i32 + y as i32) as usize;
+                if self.piece.shape[y][x] {
+                    let board_x = (self.piece.pos.x as i32 + x as i32) as usize;
+                    let board_y = (self.piece.pos.y as i32 + y as i32) as usize;
                     if board_y < BOARD_HEIGHT {
-                        self.board[board_y][board_x] = self.t1.color;
+                        self.board[board_y][board_x] = self.piece.color;
                     }
                 }
             }
@@ -240,40 +219,16 @@ impl Board {
     }
 
     fn rotate_tetromino(&mut self) {
-        let old = self.t1.clone();
-        self.t1.rotate();
+        let old = self.piece.clone();
+        self.piece.rotate();
 
         for offset in [0, -1, 1, -2, 2] {
-            self.t1.pos.x = old.pos.x + offset as f32;
-            if !self.check_collision(self.t1, None) {
+            self.piece.pos.x = old.pos.x + offset as f32;
+            if !self.check_collision(self.piece, None) {
                 return;
             }
         }
 
-        self.t1 = old;
-    }
-
-    fn draw(&mut self) {
-        for y in 0..BOARD_HEIGHT {
-            for x in 0..BOARD_WIDTH {
-                draw_block(
-                    x as f32 + self.offset as f32,
-                    y as f32,
-                    self.board[y][x],
-                    false,
-                );
-            }
-        }
-
-        self.p1.draw(self.offset, true, false);
-        self.t1.draw(self.offset, false, false);
-        self.t2.draw(self.offset, false, true);
-
-        draw_ui_text(&self.font, "Score".to_string(), self.offset, 0.0);
-        draw_ui_text(&self.font, self.score.to_string(), self.offset, 1.5);
-        draw_ui_text(&self.font, "Lines".to_string(), self.offset, 4.5);
-        draw_ui_text(&self.font, self.lines.to_string(), self.offset, 6.0);
-        draw_ui_text(&self.font, "Level".to_string(), self.offset, 9.0);
-        draw_ui_text(&self.font, self.level.to_string(), self.offset, 10.5);
+        self.piece = old;
     }
 }
