@@ -2,6 +2,7 @@ use crate::global::*;
 use crate::tetromino::*;
 use macroquad::prelude::*;
 use rand::ChooseRandom;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct Board {
     pub controls: Vec<KeyCode>,
@@ -79,7 +80,10 @@ impl Board {
     }
 
     fn input(&mut self) {
-        let time = get_current_time() as f64;
+        let time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as f64;
         self.direction = Vec2::new(0.0, 0.0);
 
         if time - self.last_horizontal >= self.horizontal_delay {
