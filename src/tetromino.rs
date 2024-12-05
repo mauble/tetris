@@ -2,26 +2,27 @@ use crate::global::*;
 use macroquad::prelude::*;
 
 pub struct Template {
-    pub width: u8,
     pub shape: [[bool; 4]; 4],
     pub color: (u8, u8, u8),
 }
 
 #[derive(Clone, Copy)]
 pub struct Tetromino {
-    pub width: u8,
     pub shape: [[bool; 4]; 4],
     pub color: (u8, u8, u8),
     pub pos: Vec2,
+    pub phantom: bool,
+    pub center: bool,
 }
 
 impl Tetromino {
-    pub fn new(id: usize, pos: Option<Vec2>) -> Self {
+    pub fn new(id: usize, pos: Option<Vec2>, phantom: Option<bool>, center: Option<bool>) -> Self {
         Tetromino {
-            pos: pos.unwrap_or(DEFAULT_TETROMINO_POS),
-            width: SHAPES[id].width,
             shape: SHAPES[id].shape,
             color: SHAPES[id].color,
+            pos: pos.unwrap_or(DEFAULT_TETROMINO_POS),
+            phantom: phantom.unwrap_or(false),
+            center: center.unwrap_or(false),
         }
     }
 
@@ -37,23 +38,22 @@ impl Tetromino {
         self.shape = new_shape;
     }
 
-    pub fn draw(&mut self, offset: u32, phantom: bool, center: bool) {
-        let next_tetromino_offset = if center {
-            (4.0 - self.width as f32) / 2.0
-        } else {
-            0.0
-        };
-        for y in 0..4 {
-            for x in 0..4 {
-                if self.shape[y][x] {
-                    draw_block(
-                        self.pos.x + x as f32 - next_tetromino_offset + offset as f32,
-                        self.pos.y + y as f32,
-                        self.color,
-                        phantom,
-                    );
+    pub fn center_offset(&self) -> f32 {
+        if self.center {
+            let mut count = 0;
+
+            for row in 1..self.shape.len() {
+                for col in 0..self.shape[row].len() {
+                    if self.shape[row][col] && !self.shape[row - 1][col] {
+                        count += 1;
+                    }
                 }
             }
+
+            if count == 3 {
+                return 0.5;
+            }
         }
+        return 0.0;
     }
 }
