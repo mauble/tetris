@@ -1,4 +1,5 @@
 mod board;
+mod embed;
 mod global;
 mod render;
 mod tetromino;
@@ -20,7 +21,7 @@ fn conf() -> Conf {
 
 #[macroquad::main(conf)]
 async fn main() {
-    render::initialize_font().await;
+    embed::initialize_assets().await;
 
     let mut board1 = Board::new(
         vec![
