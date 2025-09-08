@@ -14,21 +14,6 @@ impl Renderer {
         Self { embed }
     }
 
-    pub fn draw_tetromino(&self, tetromino: Tetromino, offset: u32) {
-        for y in 0..4 {
-            for x in 0..4 {
-                if tetromino.shape[y][x] {
-                    Self::draw_block(
-                        tetromino.pos.x + x as f32 - tetromino.center_offset() + offset as f32,
-                        tetromino.pos.y + y as f32,
-                        tetromino.color,
-                        tetromino.phantom,
-                    );
-                }
-            }
-        }
-    }
-
     pub fn draw_game(&self, game: &Game) {
         for y in 0..BOARD_HEIGHT {
             for x in 0..BOARD_WIDTH {
@@ -53,7 +38,22 @@ impl Renderer {
         self.draw_ui_text(game.level.to_string(), game.offset, 10.5);
     }
 
-    pub fn draw_ui_text(&self, text: String, x_offset: u32, y: f32) {
+    fn draw_tetromino(&self, tetromino: Tetromino, offset: u32) {
+        for y in 0..4 {
+            for x in 0..4 {
+                if tetromino.shape[y][x] {
+                    Self::draw_block(
+                        tetromino.pos.x + x as f32 - tetromino.center_offset() + offset as f32,
+                        tetromino.pos.y + y as f32,
+                        tetromino.color,
+                        tetromino.phantom,
+                    );
+                }
+            }
+        }
+    }
+
+    fn draw_ui_text(&self, text: String, x_offset: u32, y: f32) {
         let center = get_text_center(&text, Some(&self.embed.font), FONT_SIZE, 1.0, 0.0);
         draw_text_ex(
             &text,
@@ -68,7 +68,7 @@ impl Renderer {
         );
     }
 
-    pub fn draw_block(x: f32, y: f32, color: (u8, u8, u8), phantom: bool) {
+    fn draw_block(x: f32, y: f32, color: (u8, u8, u8), phantom: bool) {
         let x_loc = x * BLOCK_SIZE;
         let y_loc = y * BLOCK_SIZE;
 
