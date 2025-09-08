@@ -1,13 +1,13 @@
-mod board;
 mod embed;
+mod game;
 mod global;
 mod render;
 mod tetromino;
 
-use board::*;
+use game::Game;
 use global::*;
 use macroquad::prelude::*;
-use render::*;
+use render::Renderer;
 
 fn conf() -> Conf {
     Conf {
@@ -21,9 +21,9 @@ fn conf() -> Conf {
 
 #[macroquad::main(conf)]
 async fn main() {
-    embed::initialize_assets().await;
+    let renderer = Renderer::new().await;
 
-    let mut board1 = Board::new(
+    let mut player1 = Game::new(
         vec![
             KeyCode::A,
             KeyCode::D,
@@ -33,7 +33,8 @@ async fn main() {
         ],
         0,
     );
-    // let mut board2 = Board::new(
+
+    // let mut player2 = Game::new(
     //     vec![
     //         KeyCode::Left,
     //         KeyCode::Right,
@@ -47,9 +48,10 @@ async fn main() {
     loop {
         clear_background(get_color(UI_COLOR, 255));
 
-        board1.run();
-        draw_board(&board1);
-        // board2.run();
+        player1.run();
+        renderer.draw_game(&player1);
+
+        // player2.run();
 
         next_frame().await;
     }

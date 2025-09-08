@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 use rand::ChooseRandom;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-pub struct Board {
+pub struct Game {
     pub controls: Vec<KeyCode>,
     pub offset: u32,
 
@@ -29,9 +29,9 @@ pub struct Board {
     pub lines: i32,
 }
 
-impl Board {
+impl Game {
     pub fn new(controls: Vec<KeyCode>, offset: u32) -> Self {
-        let mut board = Board {
+        let mut game = Game {
             controls,
             offset: offset * GAME_WIDTH as u32,
 
@@ -56,8 +56,8 @@ impl Board {
             lines: 0,
         };
 
-        board.update_bag();
-        return board;
+        game.update_bag();
+        return game;
     }
 
     pub fn run(&mut self) {
@@ -199,7 +199,7 @@ impl Board {
     fn check_game_over(&mut self) {
         for x in 0..BOARD_WIDTH {
             if self.board[0][x] != BOARD_COLOR {
-                *self = Board::new(self.controls.clone(), self.offset);
+                *self = Game::new(self.controls.clone(), self.offset);
                 return;
             }
         }
