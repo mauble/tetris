@@ -1,22 +1,8 @@
 use crate::board::Board;
+use crate::embed::get_font;
 use crate::global::*;
 use crate::tetromino::Tetromino;
-use lazy_static::lazy_static;
 use macroquad::prelude::*;
-use std::sync::Mutex;
-
-lazy_static! {
-    static ref FONT: Mutex<Option<Font>> = Mutex::new(None);
-}
-
-pub async fn initialize_font() {
-    let font = load_ttf_font(FONT_PATH).await.unwrap();
-    *FONT.lock().unwrap() = Some(font);
-}
-
-pub fn get_font() -> Font {
-    FONT.lock().unwrap().clone().unwrap()
-}
 
 pub fn draw_tetromino(tetromino: Tetromino, offset: u32) {
     for y in 0..4 {
