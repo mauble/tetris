@@ -1,13 +1,13 @@
 mod embed;
 mod game;
 mod global;
-mod render;
+mod renderer;
 mod tetromino;
 
 use game::Game;
 use global::*;
 use macroquad::prelude::*;
-use render::Renderer;
+use renderer::Renderer;
 
 fn conf() -> Conf {
     Conf {
