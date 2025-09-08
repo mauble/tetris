@@ -15,10 +15,14 @@ impl Embed {
         Self { font }
     }
 
-    pub async fn initialize_font() -> Font {
-        let font_bytes = Asset::get("font.ttf")
-            .expect("File font.ttf not found.")
-            .data;
+    fn get_asset(path: &str) -> Vec<u8> {
+        Asset::get(path)
+            .map(|f| f.data.into())
+            .expect(&format!("File {} not found.", path))
+    }
+
+    async fn initialize_font() -> Font {
+        let font_bytes = Self::get_asset("font.ttf");
         load_ttf_font_from_bytes(&font_bytes).expect("Failed to load font.")
     }
 }
