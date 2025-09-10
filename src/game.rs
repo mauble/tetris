@@ -3,7 +3,6 @@ use crate::tetromino::*;
 use macroquad::prelude::*;
 use macroquad::rand::ChooseRandom;
 use macroquad::rand::RandGenerator;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct Game {
     pub controls: Vec<KeyCode>,
@@ -68,12 +67,7 @@ impl Game {
         if self.bag.is_empty() {
             self.bag = SHAPES.iter().enumerate().map(|(index, _)| index).collect();
             let mut rng = RandGenerator::new();
-            rng.srand(
-                SystemTime::now()
-                    .duration_since(UNIX_EPOCH)
-                    .unwrap()
-                    .as_millis() as u64,
-            );
+            rng.srand(get_millis());
             self.bag.shuffle_with_state(&mut rng);
         }
 
@@ -86,10 +80,7 @@ impl Game {
     }
 
     fn input(&mut self) {
-        let time = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_millis() as u64;
+        let time = get_millis();
         self.direction = Vec2::new(0.0, 0.0);
 
         if time - self.last_x_move >= self.x_move_delay {

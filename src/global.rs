@@ -1,5 +1,6 @@
 use crate::tetromino::*;
 use macroquad::prelude::*;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub const BOARD_COLOR: (u8, u8, u8) = (20, 20, 20);
 pub const UI_COLOR: (u8, u8, u8) = (30, 30, 30);
@@ -80,6 +81,13 @@ pub const SHAPES: [Template; 7] = [
         color: (220, 60, 90),
     },
 ];
+
+pub fn get_millis() -> u64 {
+    return SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as u64;
+}
 
 pub fn get_color(color: (u8, u8, u8), a: u8) -> Color {
     return Color::from_rgba(color.0, color.1, color.2, a);
