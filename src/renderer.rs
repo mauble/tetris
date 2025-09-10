@@ -33,7 +33,7 @@ impl Renderer {
         self.draw_tetromino(game.preview);
 
         let x_offset = BOARD_WIDTH as f32 + 2.5;
-        let y_offset = TETROMINO_PREVIEW_POS.y + 6.0;
+        let y_offset = TETROMINO_PREVIEW_POS.y + 5.5;
 
         self.draw_text("Score", 0.0, 0.0, x_offset, y_offset);
         self.draw_text(&game.score.to_string(), 0.0, 1.5, x_offset, y_offset);
