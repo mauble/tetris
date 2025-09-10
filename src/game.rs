@@ -5,41 +5,47 @@ use macroquad::rand::ChooseRandom;
 use macroquad::rand::RandGenerator;
 
 pub struct Game {
-    pub controls: Vec<KeyCode>,
+    controls: Vec<KeyCode>,
+    bag: Vec<usize>,
 
     pub board: Vec<Vec<(u8, u8, u8)>>,
-    pub bag: Vec<usize>,
-    pub direction: Vec2,
 
     pub piece: Tetromino,
     pub preview: Tetromino,
     pub phantom: Tetromino,
 
-    pub x_move_delay: u64,
-    pub y_move_delay: u64,
-    pub gravity_delay: u64,
-
-    pub last_x_move: u64,
-    pub last_y_move: u64,
-    pub last_gravity: u64,
-
-    pub level: i32,
     pub score: i32,
     pub lines: i32,
+    pub level: i32,
+
+    direction: Vec2,
+
+    x_move_delay: u64,
+    y_move_delay: u64,
+    gravity_delay: u64,
+
+    last_x_move: u64,
+    last_y_move: u64,
+    last_gravity: u64,
 }
 
 impl Game {
     pub fn new(controls: Vec<KeyCode>) -> Self {
         let mut game = Game {
             controls,
+            bag: Vec::new(),
 
             board: vec![vec![BOARD_COLOR; BOARD_WIDTH]; BOARD_HEIGHT],
-            bag: Vec::new(),
-            direction: Vec2::new(0.0, 0.0),
 
             piece: Tetromino::new(0, None),
             phantom: Tetromino::new(0, None),
             preview: Tetromino::new(0, None),
+
+            score: 0,
+            lines: 0,
+            level: 0,
+
+            direction: Vec2::new(0.0, 0.0),
 
             x_move_delay: X_MOVE_DELAY,
             y_move_delay: Y_MOVE_DELAY,
@@ -48,10 +54,6 @@ impl Game {
             last_x_move: 0,
             last_y_move: 0,
             last_gravity: 0,
-
-            level: 0,
-            score: 0,
-            lines: 0,
         };
 
         game.update_bag();
