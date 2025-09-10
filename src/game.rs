@@ -113,9 +113,17 @@ impl<'a> Game<'a> {
             self.drop_tetromino();
         }
 
+        let mut rotated = false;
+        let mut clockwise = false;
         if is_key_pressed(self.controls.rotate_clockwise) {
+            rotated = true;
+            clockwise = true;
+        } else if is_key_pressed(self.controls.rotate_counterclockwise) {
+            rotated = true;
+        }
+        if rotated {
             let old = self.piece.shape();
-            self.rotate_tetromino(true);
+            self.rotate_tetromino(clockwise);
             if old != self.piece.shape() && self.check_collision(self.piece, Vec2::new(0.0, 1.0)) {
                 self.last_gravity = time;
             }
