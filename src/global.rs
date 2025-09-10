@@ -12,8 +12,8 @@ pub const BOARD_WIDTH: usize = 10;
 pub const BOARD_HEIGHT: usize = 20;
 pub const GAME_WIDTH: usize = BOARD_WIDTH + 5;
 
-pub const DEFAULT_TETROMINO_POS: Vec2 = Vec2::new((BOARD_WIDTH / 2 - 2) as f32, -1.0);
-pub const NEXT_TETROMINO_POS: Vec2 = Vec2::new(BOARD_WIDTH as f32 + 0.5, 1.0);
+pub const TETROMINO_SPAWN_POS: Vec2 = Vec2::new((BOARD_WIDTH / 2 - 2) as f32, -1.0);
+pub const TETROMINO_PREVIEW_POS: Vec2 = Vec2::new(BOARD_WIDTH as f32 + 0.5, 2.0);
 
 pub const SHAPES: [Template; 7] = [
     Template {

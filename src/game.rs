@@ -79,10 +79,10 @@ impl Game {
 
         self.piece = self.preview.clone();
         self.piece.center = false;
-        self.piece.pos = DEFAULT_TETROMINO_POS;
+        self.piece.pos = TETROMINO_SPAWN_POS;
 
         self.preview = Tetromino::new(self.bag.pop().unwrap(), None, None, Some(true));
-        self.preview.pos = NEXT_TETROMINO_POS;
+        self.preview.pos = TETROMINO_PREVIEW_POS;
     }
 
     fn input(&mut self) {

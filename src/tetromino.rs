@@ -20,7 +20,7 @@ impl Tetromino {
         Tetromino {
             shape: SHAPES[id].shape,
             color: SHAPES[id].color,
-            pos: pos.unwrap_or(DEFAULT_TETROMINO_POS),
+            pos: pos.unwrap_or(TETROMINO_SPAWN_POS),
             phantom: phantom.unwrap_or(false),
             center: center.unwrap_or(false),
         }

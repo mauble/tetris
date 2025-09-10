@@ -32,14 +32,15 @@ impl Renderer {
         self.draw_tetromino(game.phantom);
         self.draw_tetromino(game.preview);
 
-        let ui_x_pos = BOARD_WIDTH as f32 + 2.5;
+        let x_offset = BOARD_WIDTH as f32 + 2.5;
+        let y_offset = TETROMINO_PREVIEW_POS.y + 6.0;
 
-        self.draw_text("Score", ui_x_pos, 0.0);
-        self.draw_text(&game.score.to_string(), ui_x_pos, 1.5);
-        self.draw_text("Lines", ui_x_pos, 4.5);
-        self.draw_text(&game.lines.to_string(), ui_x_pos, 6.0);
-        self.draw_text("Level", ui_x_pos, 9.0);
-        self.draw_text(&game.level.to_string(), ui_x_pos, 10.5);
+        self.draw_text("Score", 0.0, 0.0, x_offset, y_offset);
+        self.draw_text(&game.score.to_string(), 0.0, 1.5, x_offset, y_offset);
+        self.draw_text("Lines", 0.0, 4.0, x_offset, y_offset);
+        self.draw_text(&game.lines.to_string(), 0.0, 5.5, x_offset, y_offset);
+        self.draw_text("Level", 0.0, 8.0, x_offset, y_offset);
+        self.draw_text(&game.level.to_string(), 0.0, 9.5, x_offset, y_offset);
     }
 
     fn draw_tetromino(&self, tetromino: Tetromino) {
@@ -57,12 +58,12 @@ impl Renderer {
         }
     }
 
-    fn draw_text(&self, text: &str, x: f32, y: f32) {
+    fn draw_text(&self, text: &str, x: f32, y: f32, x_offset: f32, y_offset: f32) {
         let center = get_text_center(&text, Some(&self.embed.font), FONT_SIZE, 1.0, 0.0);
         draw_text_ex(
             &text,
-            (self.offset as f32 + x) * BLOCK_SIZE - center.x,
-            (y + NEXT_TETROMINO_POS.y + 6.5) * BLOCK_SIZE - center.y,
+            (x_offset + self.offset as f32 + x) * BLOCK_SIZE - center.x,
+            (y_offset + y) * BLOCK_SIZE - center.y,
             TextParams {
                 font_size: FONT_SIZE,
                 font: Some(&self.embed.font),
