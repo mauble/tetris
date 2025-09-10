@@ -10,11 +10,11 @@ pub struct Tetromino {
 }
 
 impl Tetromino {
-    pub fn new(id: usize, pos: Option<Vec2>) -> Self {
+    pub fn new(id: usize, pos: Vec2) -> Self {
         Tetromino {
             id,
+            pos,
             rotation: 0,
-            pos: pos.unwrap_or(TETROMINO_SPAWN_POS),
             color: SHAPES[id].color,
         }
     }
@@ -31,7 +31,7 @@ impl Tetromino {
         }
     }
 
-    pub fn center_offset(&self) -> f32 {
+    pub fn preview_offset(&self) -> f32 {
         let shape = self.shape();
         let count = (1..4)
             .flat_map(|row| (0..4).filter(move |&col| shape[row][col] && !shape[row - 1][col]))

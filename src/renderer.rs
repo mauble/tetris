@@ -48,7 +48,7 @@ impl<'a> Renderer<'a> {
                 if tetromino.shape()[y][x] {
                     let mut preview_offset = 0.0;
                     if preview {
-                        preview_offset = tetromino.center_offset();
+                        preview_offset = tetromino.preview_offset();
                     }
                     Self::draw_block(
                         tetromino.pos.x + x as f32 + preview_offset + self.offset as f32,
