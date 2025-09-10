@@ -56,7 +56,11 @@ impl<'a> Game<'a> {
             last_gravity: 0,
         };
 
-        game.update_bag();
+        game.refill_bag();
+
+        game.piece = Tetromino::new(game.bag.pop().unwrap(), Some(TETROMINO_SPAWN_POS));
+        game.preview = Tetromino::new(game.bag.pop().unwrap(), Some(TETROMINO_PREVIEW_POS));
+
         return game;
     }
 
@@ -65,19 +69,22 @@ impl<'a> Game<'a> {
         self.update_phantom();
     }
 
-    fn update_bag(&mut self) {
-        if self.bag.is_empty() {
-            self.bag = SHAPES.iter().enumerate().map(|(index, _)| index).collect();
-            let mut rng = RandGenerator::new();
-            rng.srand(get_millis());
-            self.bag.shuffle_with_state(&mut rng);
-        }
+    fn refill_bag(&mut self) {
+        self.bag = (0..SHAPES.len()).collect();
+        let mut rng = RandGenerator::new();
+        rng.srand(get_millis());
+        self.bag.shuffle_with_state(&mut rng);
+    }
 
+    fn update_bag(&mut self) {
         self.piece = self.preview.clone();
         self.piece.pos = TETROMINO_SPAWN_POS;
 
-        self.preview = Tetromino::new(self.bag.pop().unwrap(), None);
-        self.preview.pos = TETROMINO_PREVIEW_POS;
+        if self.bag.is_empty() {
+            self.refill_bag();
+        }
+
+        self.preview = Tetromino::new(self.bag.pop().unwrap(), Some(TETROMINO_PREVIEW_POS));
     }
 
     fn input(&mut self) {
