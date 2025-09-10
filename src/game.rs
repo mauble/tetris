@@ -23,10 +23,12 @@ pub struct Game<'a> {
     x_move_delay: u64,
     y_move_delay: u64,
     gravity_delay: u64,
+    lock_delay: u64,
 
     last_x_move: u64,
     last_y_move: u64,
     last_gravity: u64,
+    last_lock: u64,
 }
 
 impl<'a> Game<'a> {
@@ -50,10 +52,12 @@ impl<'a> Game<'a> {
             x_move_delay: X_MOVE_DELAY,
             y_move_delay: Y_MOVE_DELAY,
             gravity_delay: GRAVITY_DELAY,
+            lock_delay: LOCK_DELAY,
 
             last_x_move: 0,
             last_y_move: 0,
             last_gravity: 0,
+            last_lock: 0,
         };
 
         game.refill_bag();
@@ -113,20 +117,12 @@ impl<'a> Game<'a> {
             self.drop_tetromino();
         }
 
-        let mut rotated = false;
         let mut clockwise = false;
         if is_key_pressed(self.controls.rotate_clockwise) {
-            rotated = true;
             clockwise = true;
-        } else if is_key_pressed(self.controls.rotate_counterclockwise) {
-            rotated = true;
-        }
-        if rotated {
-            let old = self.piece.shape();
             self.rotate_tetromino(clockwise);
-            if old != self.piece.shape() && self.check_collision(self.piece, Vec2::new(0.0, 1.0)) {
-                self.last_gravity = time;
-            }
+        } else if is_key_pressed(self.controls.rotate_counterclockwise) {
+            self.rotate_tetromino(clockwise);
         }
 
         if time - self.last_gravity >= self.gravity_delay {
@@ -134,13 +130,21 @@ impl<'a> Game<'a> {
             self.last_gravity = time;
         }
 
-        if !self.check_collision(self.piece, Vec2::new(self.direction.x, 0.0)) {
+        if !self.check_collision(self.piece, Vec2::new(self.direction.x, 0.0))
+            && self.direction.x != 0.0
+        {
             self.piece.pos.x += self.direction.x;
+            self.last_lock = time;
         }
-        if !self.check_collision(self.piece, Vec2::new(0.0, self.direction.y)) {
+
+        if !self.check_collision(self.piece, Vec2::new(0.0, self.direction.y))
+            && self.direction.y != 0.0
+        {
             self.piece.pos.y += self.direction.y;
-        } else if self.direction.y == 1.0 {
-            self.place_tetromino();
+        } else if self.direction.y > 0.0 {
+            if time - self.last_lock >= self.lock_delay {
+                self.place_tetromino();
+            }
         }
     }
 
@@ -255,6 +259,7 @@ impl<'a> Game<'a> {
                 if !self.check_collision(test_piece.clone(), offset) {
                     self.piece.rotate(clockwise);
                     self.piece.pos += offset;
+                    self.last_lock = get_millis();
                     return;
                 }
             }
