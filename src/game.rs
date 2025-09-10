@@ -72,7 +72,7 @@ impl Game {
         }
 
         self.piece = self.preview.clone();
-        self.piece.center = false;
+        self.piece.preview = false;
         self.piece.pos = TETROMINO_SPAWN_POS;
 
         self.preview = Tetromino::new(self.bag.pop().unwrap(), None, None, Some(true));
@@ -221,7 +221,7 @@ impl Game {
 
     fn rotate_tetromino(&mut self) {
         let old = self.piece.clone();
-        self.piece.rotate();
+        self.piece.rotate_shape();
 
         for offset in [0, -1, 1, -2, 2] {
             self.piece.pos.x = old.pos.x + offset as f32;
