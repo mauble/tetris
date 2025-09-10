@@ -41,9 +41,9 @@ impl Game {
             phantom: Tetromino::new(0, None, None),
             preview: Tetromino::new(0, None, None),
 
-            x_move_delay: 120,
-            y_move_delay: 40,
-            gravity_delay: 1000,
+            x_move_delay: X_MOVE_DELAY,
+            y_move_delay: Y_MOVE_DELAY,
+            gravity_delay: GRAVITY_DELAY,
 
             last_x_move: 0,
             last_y_move: 0,
