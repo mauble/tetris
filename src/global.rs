@@ -16,7 +16,7 @@ pub const FONT_COLOR: (u8, u8, u8) = (255, 255, 255);
 pub const BOARD_COLOR: (u8, u8, u8) = (20, 20, 20);
 pub const UI_COLOR: (u8, u8, u8) = (30, 30, 30);
 
-pub const FONT_SIZE: u16 = 36;
+pub const FONT_SIZE: u16 = 32;
 pub const BLOCK_SIZE: f32 = 40.0;
 
 pub const BOARD_WIDTH: usize = 10;
