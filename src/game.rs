@@ -1,5 +1,5 @@
 use crate::global::*;
-use crate::tetromino::*;
+use crate::tetromino::Tetromino;
 use macroquad::prelude::*;
 use macroquad::rand::ChooseRandom;
 use macroquad::rand::RandGenerator;
