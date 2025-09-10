@@ -46,10 +46,9 @@ impl Renderer {
     fn draw_tetromino(&self, tetromino: Tetromino) {
         for y in 0..4 {
             for x in 0..4 {
-                if tetromino.shape[y][x] {
+                if tetromino.shape()[y][x] {
                     Self::draw_block(
-                        tetromino.pos.x + x as f32 - tetromino.preview_offset()
-                            + self.offset as f32,
+                        tetromino.pos.x + x as f32 + self.offset as f32, // - tetromino.preview_offset()
                         tetromino.pos.y + y as f32,
                         tetromino.color,
                         tetromino.phantom,

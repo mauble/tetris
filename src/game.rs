@@ -37,9 +37,9 @@ impl Game {
             bag: Vec::new(),
             direction: Vec2::new(0.0, 0.0),
 
-            piece: Tetromino::new(0, None, None, None),
-            phantom: Tetromino::new(0, None, None, None),
-            preview: Tetromino::new(0, None, None, None),
+            piece: Tetromino::new(0, None, None),
+            phantom: Tetromino::new(0, None, None),
+            preview: Tetromino::new(0, None, None),
 
             x_move_delay: 120,
             y_move_delay: 40,
@@ -72,10 +72,9 @@ impl Game {
         }
 
         self.piece = self.preview.clone();
-        self.piece.preview = false;
         self.piece.pos = TETROMINO_SPAWN_POS;
 
-        self.preview = Tetromino::new(self.bag.pop().unwrap(), None, None, Some(true));
+        self.preview = Tetromino::new(self.bag.pop().unwrap(), None, None);
         self.preview.pos = TETROMINO_PREVIEW_POS;
     }
 
@@ -102,9 +101,9 @@ impl Game {
         }
 
         if is_key_pressed(self.controls[3]) {
-            let old = self.piece.shape;
-            self.rotate_tetromino();
-            if old != self.piece.shape
+            let old = self.piece.shape();
+            self.rotate_tetromino(true);
+            if old != self.piece.shape()
                 && self.check_collision(self.piece, Some(Vec2::new(0.0, 1.0)))
             {
                 self.last_gravity = time;
@@ -133,7 +132,7 @@ impl Game {
         let offset = offset.unwrap_or(Vec2::new(0.0, 0.0));
         for y in 0..4 {
             for x in 0..4 {
-                if tetromino.shape[y][x] {
+                if tetromino.shape()[y][x] {
                     let mut index = Vec2::new(x as f32, y as f32);
                     index += tetromino.pos + offset;
 
@@ -205,7 +204,7 @@ impl Game {
     fn place_tetromino(&mut self) {
         for y in 0..4 {
             for x in 0..4 {
-                if self.piece.shape[y][x] {
+                if self.piece.shape()[y][x] {
                     let board_x = (self.piece.pos.x as i32 + x as i32) as usize;
                     let board_y = (self.piece.pos.y as i32 + y as i32) as usize;
                     if board_y < BOARD_HEIGHT {
@@ -219,17 +218,37 @@ impl Game {
         self.check_game_over();
     }
 
-    fn rotate_tetromino(&mut self) {
-        let old = self.piece.clone();
-        self.piece.rotate_shape();
+    fn rotate_tetromino(&mut self, clockwise: bool) {
+        let from = self.piece.rotation as i32;
+        let mut test_piece = self.piece.clone();
+        test_piece.rotate(clockwise);
+        let to = test_piece.rotation as i32;
 
-        for offset in [0, -1, 1, -2, 2] {
-            self.piece.pos.x = old.pos.x + offset as f32;
-            if !self.check_collision(self.piece, None) {
-                return;
+        let table: Vec<[(i32, i32); 5]> = if self.piece.id == 0 {
+            I_KICKS
+                .iter()
+                .filter(|((f, t), _)| *f == from && *t == to)
+                .map(|(_, kicks)| *kicks)
+                .collect()
+        } else if self.piece.id == 3 {
+            vec![[(0, 0), (0, 0), (0, 0), (0, 0), (0, 0)]]
+        } else {
+            JLSTZ_KICKS
+                .iter()
+                .filter(|((f, t), _)| *f == from && *t == to)
+                .map(|(_, kicks)| *kicks)
+                .collect()
+        };
+
+        if let Some(kicks) = table.first() {
+            for (kx, ky) in kicks.iter() {
+                let offset = Vec2::new(*kx as f32, *ky as f32);
+                if !self.check_collision(test_piece.clone(), Some(offset)) {
+                    self.piece.rotate(clockwise);
+                    self.piece.pos += offset;
+                    return;
+                }
             }
         }
-
-        self.piece = old;
     }
 }
