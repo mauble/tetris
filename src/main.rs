@@ -26,7 +26,7 @@ async fn main() {
 
     let renderer = Renderer::new(&assets, 0);
 
-    let mut player = Game::new(CONTROLS_PLAYER1);
+    let mut player = Game::new(&CONTROLS_PLAYER1);
 
     loop {
         clear_background(get_color(UI_COLOR, 255));

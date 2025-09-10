@@ -33,13 +33,21 @@ pub const TETROMINO_PREVIEW_POS: Vec2 = Vec2::new(BOARD_WIDTH as f32 + 0.5, 2.0)
 
 pub const SCORE_PER_LINE: [u32; 5] = [2, 100, 300, 500, 800];
 
-pub const CONTROLS_PLAYER1: [KeyCode; 5] = [
-    KeyCode::A,
-    KeyCode::D,
-    KeyCode::S,
-    KeyCode::W,
-    KeyCode::Space,
-];
+pub struct Controls {
+    pub left: KeyCode,
+    pub right: KeyCode,
+    pub soft_drop: KeyCode,
+    pub hard_drop: KeyCode,
+    pub rotate_clockwise: KeyCode,
+}
+
+pub const CONTROLS_PLAYER1: Controls = Controls {
+    left: KeyCode::A,
+    right: KeyCode::D,
+    soft_drop: KeyCode::S,
+    hard_drop: KeyCode::Space,
+    rotate_clockwise: KeyCode::W,
+};
 
 pub const JLSTZ_KICKS: [((i32, i32), [(i32, i32); 5]); 8] = [
     ((0, 1), [(0, 0), (-1, 0), (-1, 1), (0, -2), (-1, -2)]),
