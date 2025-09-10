@@ -25,7 +25,7 @@ async fn main() {
     let assets = Assets::new().await;
     let renderer = Renderer::new(assets, 0);
 
-    let mut player = Game::new(vec![
+    let mut player = Game::new([
         KeyCode::A,
         KeyCode::D,
         KeyCode::S,
