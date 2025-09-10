@@ -13,7 +13,7 @@ fn conf() -> Conf {
     Conf {
         window_title: "Tetris".to_owned(),
         window_resizable: false,
-        window_width: GAME_WIDTH as i32 * BLOCK_SIZE as i32 * 1,
+        window_width: GAME_WIDTH as i32 * BLOCK_SIZE as i32,
         window_height: BOARD_HEIGHT as i32 * BLOCK_SIZE as i32,
         ..Default::default()
     }
@@ -21,37 +21,21 @@ fn conf() -> Conf {
 
 #[macroquad::main(conf)]
 async fn main() {
-    let renderer = Renderer::new().await;
+    let renderer = Renderer::new(0).await;
 
-    let mut player1 = Game::new(
-        vec![
-            KeyCode::A,
-            KeyCode::D,
-            KeyCode::S,
-            KeyCode::W,
-            KeyCode::Space,
-        ],
-        0,
-    );
-
-    // let mut player2 = Game::new(
-    //     vec![
-    //         KeyCode::Left,
-    //         KeyCode::Right,
-    //         KeyCode::Down,
-    //         KeyCode::Up,
-    //         KeyCode::RightShift,
-    //     ],
-    //     1,
-    // );
+    let mut player = Game::new(vec![
+        KeyCode::A,
+        KeyCode::D,
+        KeyCode::S,
+        KeyCode::W,
+        KeyCode::Space,
+    ]);
 
     loop {
         clear_background(get_color(UI_COLOR, 255));
 
-        player1.run();
-        renderer.draw_game(&player1);
-
-        // player2.run();
+        player.run();
+        renderer.draw_game(&player);
 
         next_frame().await;
     }

@@ -5,20 +5,22 @@ use crate::tetromino::Tetromino;
 use macroquad::prelude::*;
 
 pub struct Renderer {
+    pub offset: u32,
     pub embed: Embed,
 }
 
 impl Renderer {
-    pub async fn new() -> Self {
+    pub async fn new(offset: u32) -> Self {
+        let offset = offset * GAME_WIDTH as u32;
         let embed = Embed::new().await;
-        Self { embed }
+        Self { offset, embed }
     }
 
     pub fn draw_game(&self, game: &Game) {
         for y in 0..BOARD_HEIGHT {
             for x in 0..BOARD_WIDTH {
                 Self::draw_block(
-                    x as f32 + game.offset as f32,
+                    x as f32 + self.offset as f32,
                     y as f32,
                     game.board[y][x],
                     false,
@@ -26,24 +28,26 @@ impl Renderer {
             }
         }
 
-        self.draw_tetromino(game.piece, game.offset);
-        self.draw_tetromino(game.phantom, game.offset);
-        self.draw_tetromino(game.preview, game.offset);
+        self.draw_tetromino(game.piece);
+        self.draw_tetromino(game.phantom);
+        self.draw_tetromino(game.preview);
 
-        self.draw_ui_text("Score".to_string(), game.offset, 0.0);
-        self.draw_ui_text(game.score.to_string(), game.offset, 1.5);
-        self.draw_ui_text("Lines".to_string(), game.offset, 4.5);
-        self.draw_ui_text(game.lines.to_string(), game.offset, 6.0);
-        self.draw_ui_text("Level".to_string(), game.offset, 9.0);
-        self.draw_ui_text(game.level.to_string(), game.offset, 10.5);
+        let ui_x_pos = BOARD_WIDTH as f32 + 2.5;
+
+        self.draw_ui_text("Score", ui_x_pos, 0.0);
+        self.draw_ui_text(&game.score.to_string(), ui_x_pos, 1.5);
+        self.draw_ui_text("Lines", ui_x_pos, 4.5);
+        self.draw_ui_text(&game.lines.to_string(), ui_x_pos, 6.0);
+        self.draw_ui_text("Level", ui_x_pos, 9.0);
+        self.draw_ui_text(&game.level.to_string(), ui_x_pos, 10.5);
     }
 
-    fn draw_tetromino(&self, tetromino: Tetromino, offset: u32) {
+    fn draw_tetromino(&self, tetromino: Tetromino) {
         for y in 0..4 {
             for x in 0..4 {
                 if tetromino.shape[y][x] {
                     Self::draw_block(
-                        tetromino.pos.x + x as f32 - tetromino.center_offset() + offset as f32,
+                        tetromino.pos.x + x as f32 - tetromino.center_offset() + self.offset as f32,
                         tetromino.pos.y + y as f32,
                         tetromino.color,
                         tetromino.phantom,
@@ -53,11 +57,11 @@ impl Renderer {
         }
     }
 
-    fn draw_ui_text(&self, text: String, x_offset: u32, y: f32) {
+    fn draw_ui_text(&self, text: &str, x: f32, y: f32) {
         let center = get_text_center(&text, Some(&self.embed.font), FONT_SIZE, 1.0, 0.0);
         draw_text_ex(
             &text,
-            (BOARD_WIDTH as f32 + x_offset as f32 + 2.5) * BLOCK_SIZE - center.x,
+            (self.offset as f32 + x) * BLOCK_SIZE - center.x,
             (y + NEXT_TETROMINO_POS.y + 6.5) * BLOCK_SIZE,
             TextParams {
                 font_size: FONT_SIZE,
