@@ -12,7 +12,7 @@ pub struct Tetromino {
     pub color: (u8, u8, u8),
     pub pos: Vec2,
     pub phantom: bool,
-    pub center: bool,
+    pub preview: bool,
 }
 
 impl Tetromino {
@@ -22,11 +22,11 @@ impl Tetromino {
             color: SHAPES[id].color,
             pos: pos.unwrap_or(TETROMINO_SPAWN_POS),
             phantom: phantom.unwrap_or(false),
-            center: center.unwrap_or(false),
+            preview: center.unwrap_or(false),
         }
     }
 
-    pub fn rotate(&mut self) {
+    pub fn rotate_shape(&mut self) {
         let mut new_shape: [[bool; 4]; 4] = [[false; 4]; 4];
 
         for i in 0..4 {
@@ -38,8 +38,8 @@ impl Tetromino {
         self.shape = new_shape;
     }
 
-    pub fn center_offset(&self) -> f32 {
-        if self.center {
+    pub fn preview_offset(&self) -> f32 {
+        if self.preview {
             let mut count = 0;
 
             for row in 1..self.shape.len() {
