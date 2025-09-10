@@ -62,7 +62,7 @@ impl Renderer {
         draw_text_ex(
             &text,
             (self.offset as f32 + x) * BLOCK_SIZE - center.x,
-            (y + NEXT_TETROMINO_POS.y + 6.5) * BLOCK_SIZE,
+            (y + NEXT_TETROMINO_POS.y + 6.5) * BLOCK_SIZE - center.y,
             TextParams {
                 font_size: FONT_SIZE,
                 font: Some(&self.embed.font),
