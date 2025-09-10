@@ -28,9 +28,9 @@ impl Renderer {
             }
         }
 
-        self.draw_tetromino(game.piece, false);
-        self.draw_tetromino(game.phantom, false);
-        self.draw_tetromino(game.preview, true);
+        self.draw_tetromino(game.piece, false, false);
+        self.draw_tetromino(game.phantom, true, false);
+        self.draw_tetromino(game.preview, false, true);
 
         let x_offset = BOARD_WIDTH as f32 + 2.5;
         let y_offset = TETROMINO_PREVIEW_POS.y + 5.5;
@@ -43,7 +43,7 @@ impl Renderer {
         self.draw_text(&game.level.to_string(), 0.0, 9.5, x_offset, y_offset);
     }
 
-    fn draw_tetromino(&self, tetromino: Tetromino, preview: bool) {
+    fn draw_tetromino(&self, tetromino: Tetromino, phantom: bool, preview: bool) {
         for y in 0..4 {
             for x in 0..4 {
                 if tetromino.shape()[y][x] {
@@ -55,7 +55,7 @@ impl Renderer {
                         tetromino.pos.x + x as f32 + preview_offset + self.offset as f32,
                         tetromino.pos.y + y as f32,
                         tetromino.color,
-                        tetromino.phantom,
+                        phantom,
                     );
                 }
             }
