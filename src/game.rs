@@ -5,7 +5,7 @@ use macroquad::rand::ChooseRandom;
 use macroquad::rand::RandGenerator;
 
 pub struct Game {
-    controls: Vec<KeyCode>,
+    controls: [KeyCode; 5],
     bag: Vec<usize>,
 
     pub board: Vec<Vec<(u8, u8, u8)>>,
@@ -30,7 +30,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(controls: Vec<KeyCode>) -> Self {
+    pub fn new(controls: [KeyCode; 5]) -> Self {
         let mut game = Game {
             controls,
             bag: Vec::new(),

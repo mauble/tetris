@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 #[derive(Clone, Copy)]
 pub struct Tetromino {
     pub id: usize,
-    pub rotation: usize, // 0 = spawn, 1 = right, 2 = reverse, 3 = left
+    pub rotation: usize,
     pub pos: Vec2,
     pub color: (u8, u8, u8),
 }
