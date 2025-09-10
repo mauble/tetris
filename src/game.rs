@@ -7,7 +7,6 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct Game {
     pub controls: Vec<KeyCode>,
-    pub offset: u32,
 
     pub board: Vec<Vec<(u8, u8, u8)>>,
     pub bag: Vec<usize>,
@@ -31,10 +30,9 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(controls: Vec<KeyCode>, offset: u32) -> Self {
+    pub fn new(controls: Vec<KeyCode>) -> Self {
         let mut game = Game {
             controls,
-            offset: offset * GAME_WIDTH as u32,
 
             board: vec![vec![BOARD_COLOR; BOARD_WIDTH]; BOARD_HEIGHT],
             bag: Vec::new(),
@@ -207,7 +205,7 @@ impl Game {
     fn check_game_over(&mut self) {
         for x in 0..BOARD_WIDTH {
             if self.board[0][x] != BOARD_COLOR {
-                *self = Game::new(self.controls.clone(), self.offset);
+                *self = Game::new(self.controls.clone());
                 return;
             }
         }
