@@ -76,10 +76,10 @@ impl Renderer {
 
         if phantom {
             draw_rectangle_lines(
-                x_loc + 2.0,
-                y_loc + 2.0,
-                BLOCK_SIZE - 5.0,
-                BLOCK_SIZE - 5.0,
+                x_loc + 4.0,
+                y_loc + 4.0,
+                BLOCK_SIZE - 8.0,
+                BLOCK_SIZE - 8.0,
                 2.0,
                 color_var,
             );
