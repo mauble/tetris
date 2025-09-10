@@ -4,8 +4,8 @@ use macroquad::prelude::*;
 use macroquad::rand::ChooseRandom;
 use macroquad::rand::RandGenerator;
 
-pub struct Game {
-    controls: [KeyCode; 5],
+pub struct Game<'a> {
+    controls: &'a Controls,
     bag: Vec<usize>,
 
     pub board: Vec<Vec<(u8, u8, u8)>>,
@@ -29,8 +29,8 @@ pub struct Game {
     last_gravity: u64,
 }
 
-impl Game {
-    pub fn new(controls: [KeyCode; 5]) -> Self {
+impl<'a> Game<'a> {
+    pub fn new(controls: &'a Controls) -> Self {
         let mut game = Game {
             controls,
             bag: Vec::new(),
@@ -85,24 +85,28 @@ impl Game {
         self.direction = Vec2::new(0.0, 0.0);
 
         if time - self.last_x_move >= self.x_move_delay {
-            if is_key_down(self.controls[0]) {
+            if is_key_down(self.controls.left) {
                 self.direction.x = -1.0;
                 self.last_x_move = time;
             }
-            if is_key_down(self.controls[1]) {
+            if is_key_down(self.controls.right) {
                 self.direction.x = 1.0;
                 self.last_x_move = time;
             }
         }
 
         if time - self.last_y_move >= self.y_move_delay {
-            if is_key_down(self.controls[2]) {
+            if is_key_down(self.controls.soft_drop) {
                 self.direction.y = 1.0;
                 self.last_y_move = time;
             }
         }
 
-        if is_key_pressed(self.controls[3]) {
+        if is_key_pressed(self.controls.hard_drop) {
+            self.drop_tetromino();
+        }
+
+        if is_key_pressed(self.controls.rotate_clockwise) {
             let old = self.piece.shape();
             self.rotate_tetromino(true);
             if old != self.piece.shape()
@@ -110,9 +114,6 @@ impl Game {
             {
                 self.last_gravity = time;
             }
-        }
-        if is_key_pressed(self.controls[4]) {
-            self.drop_tetromino();
         }
 
         if time - self.last_gravity >= self.gravity_delay {
@@ -195,7 +196,7 @@ impl Game {
     fn check_game_over(&mut self) {
         for x in 0..BOARD_WIDTH {
             if self.board[0][x] != BOARD_COLOR {
-                *self = Game::new(self.controls.clone());
+                *self = Game::new(&self.controls);
                 return;
             }
         }
