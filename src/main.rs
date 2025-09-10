@@ -14,7 +14,7 @@ fn conf() -> Conf {
     Conf {
         window_title: "Tetris".to_owned(),
         window_resizable: false,
-        window_width: GAME_WIDTH as i32 * BLOCK_SIZE as i32 * 2,
+        window_width: GAME_WIDTH as i32 * BLOCK_SIZE as i32,
         window_height: BOARD_HEIGHT as i32 * BLOCK_SIZE as i32,
         ..Default::default()
     }
