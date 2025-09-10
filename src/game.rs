@@ -37,9 +37,9 @@ impl Game {
             bag: Vec::new(),
             direction: Vec2::new(0.0, 0.0),
 
-            piece: Tetromino::new(0, None, None),
-            phantom: Tetromino::new(0, None, None),
-            preview: Tetromino::new(0, None, None),
+            piece: Tetromino::new(0, None),
+            phantom: Tetromino::new(0, None),
+            preview: Tetromino::new(0, None),
 
             x_move_delay: X_MOVE_DELAY,
             y_move_delay: Y_MOVE_DELAY,
@@ -74,7 +74,7 @@ impl Game {
         self.piece = self.preview.clone();
         self.piece.pos = TETROMINO_SPAWN_POS;
 
-        self.preview = Tetromino::new(self.bag.pop().unwrap(), None, None);
+        self.preview = Tetromino::new(self.bag.pop().unwrap(), None);
         self.preview.pos = TETROMINO_PREVIEW_POS;
     }
 
@@ -155,7 +155,6 @@ impl Game {
 
     fn update_phantom(&mut self) {
         self.phantom = self.piece.clone();
-        self.phantom.phantom = true;
         for _ in 0..BOARD_HEIGHT + 1 {
             if !self.check_collision(self.phantom, Some(Vec2::new(0.0, 1.0))) {
                 self.phantom.pos.y += 1.0;

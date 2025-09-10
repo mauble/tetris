@@ -6,17 +6,15 @@ pub struct Tetromino {
     pub id: usize,
     pub rotation: usize, // 0 = spawn, 1 = right, 2 = reverse, 3 = left
     pub pos: Vec2,
-    pub phantom: bool,
     pub color: (u8, u8, u8),
 }
 
 impl Tetromino {
-    pub fn new(id: usize, pos: Option<Vec2>, phantom: Option<bool>) -> Self {
+    pub fn new(id: usize, pos: Option<Vec2>) -> Self {
         Tetromino {
             id,
             rotation: 0,
             pos: pos.unwrap_or(TETROMINO_SPAWN_POS),
-            phantom: phantom.unwrap_or(false),
             color: SHAPES[id].color,
         }
     }
