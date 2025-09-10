@@ -2,97 +2,64 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
-
-env:
-  CARGO_TERM_COLOR: always
-  BINARY_NAME: tetris
+    tags:
+      - "v*.*.*"
 
 jobs:
-  release:
+  create-release:
     runs-on: ubuntu-latest
-
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Set up Rust
-        uses: actions/setup-rust@v1
-        with:
-          rust-version: stable
-
-      - name: Extract version from Cargo.toml
-        id: version
+      - name: Read version from Cargo.toml
+        id: cargo_version
         run: |
-          VERSION=$(grep '^version' Cargo.toml | head -n1 | cut -d'"' -f2)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Current version is $VERSION"
+          version=$(grep '^version =' Cargo.toml | sed -E 's/version = "([^"]+)"/\1/')
+          echo "version=$version" >> $GITHUB_OUTPUT
 
-      - name: Check if release already exists
-        id: check-release
+      - name: Check if release exists
+        id: check_release
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          EXISTS=$(gh release view "v$VERSION" --json tagName --jq .tagName || echo "none")
-          echo "exists=$EXISTS" >> $GITHUB_OUTPUT
-          echo "Existing release: $EXISTS"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Conditionally create release
-        id: set-release
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          EXISTS="${{ steps.check-release.outputs.exists }}"
-
-          if [ "$EXISTS" = "none" ]; then
-            echo "Creating release for version $VERSION"
-            gh release create "v$VERSION" --title "v$VERSION" --notes "Automated release for version $VERSION"
-            echo "created=true" >> $GITHUB_OUTPUT
+          if gh release view "v${{ steps.cargo_version.outputs.version }}" &>/dev/null; then
+            echo "exists=true" >> $GITHUB_OUTPUT
           else
-            echo "Release v$VERSION already exists. Skipping."
-            echo "created=false" >> $GITHUB_OUTPUT
+            echo "exists=false" >> $GITHUB_OUTPUT
           fi
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build-and-upload:
-    needs: release
-    if: needs.release.outputs.release_created == 'true'
+      - name: Create release
+        id: create_release
+        if: steps.check_release.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.cargo_version.outputs.version }}
+          name: v${{ steps.cargo_version.outputs.version }}
+          draft: false
+          prerelease: false
+
+  build:
+    needs: create-release
     strategy:
       matrix:
-        include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            artifact_name: tetris-linux
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            artifact_name: tetris-windows.exe
-
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Rust
-        uses: actions/setup-rust@v1
-        with:
-          rust-version: stable
-          targets: ${{ matrix.target }}
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Build release binary
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release
 
-      - name: Rename and upload artifact
-        run: |
-          mkdir dist
-          cp target/${{ matrix.target }}/release/${{ env.BINARY_NAME }}* dist/${{ matrix.artifact_name }}
-        shell: bash
-
-      - name: Upload release asset
-        run: |
-          gh release upload "v${{ needs.release.outputs.version }}" dist/${{ matrix.artifact_name }}#${{ matrix.artifact_name }}
+      - name: Upload binary to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/release/tetris${{ runner.os == 'Windows' && '.exe' || '' }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
