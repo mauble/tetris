@@ -1,4 +1,4 @@
-use crate::embed::Embed;
+use crate::assets::Assets;
 use crate::game::Game;
 use crate::global::*;
 use crate::tetromino::Tetromino;
@@ -6,14 +6,13 @@ use macroquad::prelude::*;
 
 pub struct Renderer {
     pub offset: u32,
-    pub embed: Embed,
+    pub assets: Assets,
 }
 
 impl Renderer {
-    pub async fn new(offset: u32) -> Self {
+    pub fn new(assets: Assets, offset: u32) -> Self {
         let offset = offset * GAME_WIDTH as u32;
-        let embed = Embed::new().await;
-        Self { offset, embed }
+        Self { offset, assets }
     }
 
     pub fn draw_game(&self, game: &Game) {
@@ -63,14 +62,14 @@ impl Renderer {
     }
 
     fn draw_text(&self, text: &str, x: f32, y: f32, x_offset: f32, y_offset: f32) {
-        let center = get_text_center(&text, Some(&self.embed.font), FONT_SIZE, 1.0, 0.0);
+        let center = get_text_center(&text, Some(&self.assets.font), FONT_SIZE, 1.0, 0.0);
         draw_text_ex(
             &text,
             (x_offset + self.offset as f32 + x) * BLOCK_SIZE - center.x,
             (y_offset + y) * BLOCK_SIZE - center.y,
             TextParams {
                 font_size: FONT_SIZE,
-                font: Some(&self.embed.font),
+                font: Some(&self.assets.font),
                 color: get_color(FONT_COLOR, 255),
                 ..Default::default()
             },
