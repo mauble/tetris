@@ -224,25 +224,21 @@ impl Game {
         test_piece.rotate(clockwise);
         let to = test_piece.rotation as i32;
 
-        let table: Vec<[(i32, i32); 5]> = if self.piece.id == 0 {
-            I_KICKS
+        let kicks = match self.piece.id {
+            0 => I_KICKS
                 .iter()
-                .filter(|((f, t), _)| *f == from && *t == to)
-                .map(|(_, kicks)| *kicks)
-                .collect()
-        } else if self.piece.id == 3 {
-            vec![[(0, 0), (0, 0), (0, 0), (0, 0), (0, 0)]]
-        } else {
-            JLSTZ_KICKS
+                .find(|((f, t), _)| *f == from && *t == to)
+                .map(|(_, kicks)| kicks),
+            3 => Some(&[(0, 0); 5]),
+            _ => JLSTZ_KICKS
                 .iter()
-                .filter(|((f, t), _)| *f == from && *t == to)
-                .map(|(_, kicks)| *kicks)
-                .collect()
+                .find(|((f, t), _)| *f == from && *t == to)
+                .map(|(_, kicks)| kicks),
         };
 
-        if let Some(kicks) = table.first() {
-            for (kx, ky) in kicks.iter() {
-                let offset = Vec2::new(*kx as f32, *ky as f32);
+        if let Some(kicks) = kicks {
+            for &(kx, ky) in kicks.iter() {
+                let offset = Vec2::new(kx as f32, ky as f32);
                 if !self.check_collision(test_piece.clone(), Some(offset)) {
                     self.piece.rotate(clockwise);
                     self.piece.pos += offset;
