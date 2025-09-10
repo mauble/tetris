@@ -1,7 +1,8 @@
 use crate::global::*;
 use crate::tetromino::*;
 use macroquad::prelude::*;
-use rand::ChooseRandom;
+use macroquad::rand::ChooseRandom;
+use macroquad::rand::RandGenerator;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct Game {
@@ -16,13 +17,13 @@ pub struct Game {
     pub preview: Tetromino,
     pub phantom: Tetromino,
 
-    pub horizontal_delay: f64,
-    pub drop_delay: f64,
-    pub gravity_delay: f64,
+    pub x_move_delay: u64,
+    pub y_move_delay: u64,
+    pub gravity_delay: u64,
 
-    pub last_horizontal: f64,
-    pub last_drop: f64,
-    pub last_gravity: f64,
+    pub last_x_move: u64,
+    pub last_y_move: u64,
+    pub last_gravity: u64,
 
     pub level: i32,
     pub score: i32,
@@ -43,13 +44,13 @@ impl Game {
             phantom: Tetromino::new(0, None, None, None),
             preview: Tetromino::new(0, None, None, None),
 
-            horizontal_delay: 120.0,
-            drop_delay: 40.0,
-            gravity_delay: 1000.0,
+            x_move_delay: 120,
+            y_move_delay: 40,
+            gravity_delay: 1000,
 
-            last_horizontal: 0.0,
-            last_drop: 0.0,
-            last_gravity: 0.0,
+            last_x_move: 0,
+            last_y_move: 0,
+            last_gravity: 0,
 
             level: 0,
             score: 0,
@@ -68,7 +69,14 @@ impl Game {
     fn update_bag(&mut self) {
         if self.bag.is_empty() {
             self.bag = SHAPES.iter().enumerate().map(|(index, _)| index).collect();
-            self.bag.shuffle();
+            let mut rng = RandGenerator::new();
+            rng.srand(
+                SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_millis() as u64,
+            );
+            self.bag.shuffle_with_state(&mut rng);
         }
 
         self.piece = self.preview.clone();
@@ -83,24 +91,24 @@ impl Game {
         let time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
-            .as_millis() as f64;
+            .as_millis() as u64;
         self.direction = Vec2::new(0.0, 0.0);
 
-        if time - self.last_horizontal >= self.horizontal_delay {
+        if time - self.last_x_move >= self.x_move_delay {
             if is_key_down(self.controls[0]) {
                 self.direction.x = -1.0;
-                self.last_horizontal = time;
+                self.last_x_move = time;
             }
             if is_key_down(self.controls[1]) {
                 self.direction.x = 1.0;
-                self.last_horizontal = time;
+                self.last_x_move = time;
             }
         }
 
-        if time - self.last_drop >= self.drop_delay {
+        if time - self.last_y_move >= self.y_move_delay {
             if is_key_down(self.controls[2]) {
                 self.direction.y = 1.0;
-                self.last_drop = time;
+                self.last_y_move = time;
             }
         }
 
@@ -192,7 +200,7 @@ impl Game {
             vec![0, 40, 100, 300, 1200][new_lines] * (self.level + 1) + 2 * (self.level + 1);
         if self.level != self.lines / 10 {
             self.level = self.lines / 10;
-            self.gravity_delay = 1000 as f64 / (self.level + 1) as f64 + 200.0;
+            self.gravity_delay = (1000 / (self.level + 1) + 200) as u64;
         }
     }
 
