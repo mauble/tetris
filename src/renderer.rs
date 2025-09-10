@@ -77,15 +77,15 @@ impl Renderer {
     }
 
     fn draw_block(x: f32, y: f32, color: (u8, u8, u8), phantom: bool) {
-        let x_loc = x * BLOCK_SIZE;
-        let y_loc = y * BLOCK_SIZE;
+        let x_pos = x * BLOCK_SIZE;
+        let y_pos = y * BLOCK_SIZE;
 
         let color_var = get_color(color, 255);
 
         if phantom {
             draw_rectangle_lines(
-                x_loc + 4.0,
-                y_loc + 4.0,
+                x_pos + 4.0,
+                y_pos + 4.0,
                 BLOCK_SIZE - 8.0,
                 BLOCK_SIZE - 8.0,
                 2.0,
@@ -93,8 +93,8 @@ impl Renderer {
             );
         } else {
             draw_rectangle(
-                x_loc + 1.0,
-                y_loc + 1.0,
+                x_pos + 1.0,
+                y_pos + 1.0,
                 BLOCK_SIZE - 2.0,
                 BLOCK_SIZE - 2.0,
                 Color::from_rgba(
@@ -105,16 +105,16 @@ impl Renderer {
                 ),
             );
             draw_rectangle_lines(
-                x_loc,
-                y_loc,
+                x_pos,
+                y_pos,
                 BLOCK_SIZE,
                 BLOCK_SIZE,
                 1.0,
                 get_color(UI_COLOR, 255),
             );
             draw_rectangle(
-                x_loc + 4.0,
-                y_loc + 4.0,
+                x_pos + 4.0,
+                y_pos + 4.0,
                 BLOCK_SIZE - 8.0,
                 BLOCK_SIZE - 8.0,
                 color_var,
