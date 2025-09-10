@@ -34,12 +34,12 @@ impl Renderer {
 
         let ui_x_pos = BOARD_WIDTH as f32 + 2.5;
 
-        self.draw_ui_text("Score", ui_x_pos, 0.0);
-        self.draw_ui_text(&game.score.to_string(), ui_x_pos, 1.5);
-        self.draw_ui_text("Lines", ui_x_pos, 4.5);
-        self.draw_ui_text(&game.lines.to_string(), ui_x_pos, 6.0);
-        self.draw_ui_text("Level", ui_x_pos, 9.0);
-        self.draw_ui_text(&game.level.to_string(), ui_x_pos, 10.5);
+        self.draw_text("Score", ui_x_pos, 0.0);
+        self.draw_text(&game.score.to_string(), ui_x_pos, 1.5);
+        self.draw_text("Lines", ui_x_pos, 4.5);
+        self.draw_text(&game.lines.to_string(), ui_x_pos, 6.0);
+        self.draw_text("Level", ui_x_pos, 9.0);
+        self.draw_text(&game.level.to_string(), ui_x_pos, 10.5);
     }
 
     fn draw_tetromino(&self, tetromino: Tetromino) {
@@ -57,7 +57,7 @@ impl Renderer {
         }
     }
 
-    fn draw_ui_text(&self, text: &str, x: f32, y: f32) {
+    fn draw_text(&self, text: &str, x: f32, y: f32) {
         let center = get_text_center(&text, Some(&self.embed.font), FONT_SIZE, 1.0, 0.0);
         draw_text_ex(
             &text,
