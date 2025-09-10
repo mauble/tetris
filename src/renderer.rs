@@ -4,13 +4,13 @@ use crate::global::*;
 use crate::tetromino::Tetromino;
 use macroquad::prelude::*;
 
-pub struct Renderer {
+pub struct Renderer<'a> {
     offset: u32,
-    assets: Assets,
+    assets: &'a Assets,
 }
 
-impl Renderer {
-    pub fn new(assets: Assets, offset: u32) -> Self {
+impl<'a> Renderer<'a> {
+    pub fn new(assets: &'a Assets, offset: u32) -> Self {
         let offset = offset * GAME_WIDTH as u32;
         Self { offset, assets }
     }
