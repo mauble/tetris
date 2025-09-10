@@ -4,7 +4,7 @@ use macroquad::prelude::*;
 #[derive(Clone, Copy)]
 pub struct Tetromino {
     pub id: usize,
-    pub rotation: i32, // 0 = spawn, 1 = right, 2 = reverse, 3 = left
+    pub rotation: usize, // 0 = spawn, 1 = right, 2 = reverse, 3 = left
     pub pos: Vec2,
     pub phantom: bool,
     pub color: (u8, u8, u8),
@@ -22,7 +22,7 @@ impl Tetromino {
     }
 
     pub fn shape(&self) -> [[bool; 4]; 4] {
-        SHAPES[self.id].orientations[self.rotation as usize]
+        SHAPES[self.id].orientations[self.rotation]
     }
 
     pub fn rotate(&mut self, clockwise: bool) {
