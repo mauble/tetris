@@ -116,9 +116,7 @@ impl<'a> Game<'a> {
         if is_key_pressed(self.controls.rotate_clockwise) {
             let old = self.piece.shape();
             self.rotate_tetromino(true);
-            if old != self.piece.shape()
-                && self.check_collision(self.piece, Some(Vec2::new(0.0, 1.0)))
-            {
+            if old != self.piece.shape() && self.check_collision(self.piece, Vec2::new(0.0, 1.0)) {
                 self.last_gravity = time;
             }
         }
@@ -128,18 +126,17 @@ impl<'a> Game<'a> {
             self.last_gravity = time;
         }
 
-        if !self.check_collision(self.piece, Some(Vec2::new(self.direction.x, 0.0))) {
+        if !self.check_collision(self.piece, Vec2::new(self.direction.x, 0.0)) {
             self.piece.pos.x += self.direction.x;
         }
-        if !self.check_collision(self.piece, Some(Vec2::new(0.0, self.direction.y))) {
+        if !self.check_collision(self.piece, Vec2::new(0.0, self.direction.y)) {
             self.piece.pos.y += self.direction.y;
         } else if self.direction.y == 1.0 {
             self.place_tetromino();
         }
     }
 
-    fn check_collision(&mut self, tetromino: Tetromino, offset: Option<Vec2>) -> bool {
-        let offset = offset.unwrap_or(Vec2::new(0.0, 0.0));
+    fn check_collision(&mut self, tetromino: Tetromino, offset: Vec2) -> bool {
         for y in 0..4 {
             for x in 0..4 {
                 if tetromino.shape()[y][x] {
@@ -166,7 +163,7 @@ impl<'a> Game<'a> {
     fn update_phantom(&mut self) {
         self.phantom = self.piece.clone();
         for _ in 0..BOARD_HEIGHT + 1 {
-            if !self.check_collision(self.phantom, Some(Vec2::new(0.0, 1.0))) {
+            if !self.check_collision(self.phantom, Vec2::new(0.0, 1.0)) {
                 self.phantom.pos.y += 1.0;
             }
         }
@@ -247,7 +244,7 @@ impl<'a> Game<'a> {
         if let Some(kicks) = kicks {
             for &(kx, ky) in kicks.iter() {
                 let offset = Vec2::new(kx as f32, ky as f32);
-                if !self.check_collision(test_piece.clone(), Some(offset)) {
+                if !self.check_collision(test_piece.clone(), offset) {
                     self.piece.rotate(clockwise);
                     self.piece.pos += offset;
                     return;
