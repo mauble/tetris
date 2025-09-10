@@ -37,9 +37,9 @@ impl<'a> Game<'a> {
 
             board: vec![vec![BOARD_COLOR; BOARD_WIDTH]; BOARD_HEIGHT],
 
-            piece: Tetromino::new(0, None),
-            phantom: Tetromino::new(0, None),
-            preview: Tetromino::new(0, None),
+            piece: Tetromino::new(0, TETROMINO_SPAWN_POS),
+            phantom: Tetromino::new(0, TETROMINO_SPAWN_POS),
+            preview: Tetromino::new(0, TETROMINO_PREVIEW_POS),
 
             score: 0,
             lines: 0,
@@ -58,8 +58,8 @@ impl<'a> Game<'a> {
 
         game.refill_bag();
 
-        game.piece = Tetromino::new(game.bag.pop().unwrap(), Some(TETROMINO_SPAWN_POS));
-        game.preview = Tetromino::new(game.bag.pop().unwrap(), Some(TETROMINO_PREVIEW_POS));
+        game.piece = Tetromino::new(game.bag.pop().unwrap(), TETROMINO_SPAWN_POS);
+        game.preview = Tetromino::new(game.bag.pop().unwrap(), TETROMINO_PREVIEW_POS);
 
         return game;
     }
@@ -84,7 +84,7 @@ impl<'a> Game<'a> {
             self.refill_bag();
         }
 
-        self.preview = Tetromino::new(self.bag.pop().unwrap(), Some(TETROMINO_PREVIEW_POS));
+        self.preview = Tetromino::new(self.bag.pop().unwrap(), TETROMINO_PREVIEW_POS);
     }
 
     fn input(&mut self) {
