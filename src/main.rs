@@ -1,9 +1,10 @@
-mod embed;
+mod assets;
 mod game;
 mod global;
 mod renderer;
 mod tetromino;
 
+use crate::assets::Assets;
 use game::Game;
 use global::*;
 use macroquad::prelude::*;
@@ -21,7 +22,8 @@ fn conf() -> Conf {
 
 #[macroquad::main(conf)]
 async fn main() {
-    let renderer = Renderer::new(0).await;
+    let assets = Assets::new().await;
+    let renderer = Renderer::new(assets, 0);
 
     let mut player = Game::new(vec![
         KeyCode::A,

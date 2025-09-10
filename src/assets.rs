@@ -5,11 +5,11 @@ use rust_embed::RustEmbed;
 #[folder = "assets/"]
 pub struct Asset;
 
-pub struct Embed {
+pub struct Assets {
     pub font: Font,
 }
 
-impl Embed {
+impl Assets {
     pub async fn new() -> Self {
         let font = Self::initialize_font().await;
         Self { font }
