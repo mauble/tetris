@@ -5,8 +5,8 @@ use crate::tetromino::Tetromino;
 use macroquad::prelude::*;
 
 pub struct Renderer {
-    pub offset: u32,
-    pub assets: Assets,
+    offset: u32,
+    assets: Assets,
 }
 
 impl Renderer {
