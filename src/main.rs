@@ -5,10 +5,10 @@ mod renderer;
 mod tetromino;
 
 use crate::assets::Assets;
-use game::Game;
-use global::*;
+use crate::game::Game;
+use crate::global::*;
+use crate::renderer::Renderer;
 use macroquad::prelude::*;
-use renderer::Renderer;
 
 fn conf() -> Conf {
     Conf {
