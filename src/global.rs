@@ -28,7 +28,7 @@ pub const X_MOVE_DELAY: u64 = 120;
 pub const Y_MOVE_DELAY: u64 = 50;
 pub const GRAVITY_DELAY: u64 = 1000;
 
-pub const TETROMINO_SPAWN_POS: Vec2 = Vec2::new((BOARD_WIDTH / 2 - 2) as f32, -1.0);
+pub const TETROMINO_SPAWN_POS: Vec2 = Vec2::new((BOARD_WIDTH / 2 - 2) as f32, -2.0);
 pub const TETROMINO_PREVIEW_POS: Vec2 = Vec2::new(BOARD_WIDTH as f32 + 0.5, 2.0);
 
 pub const SCORE_PER_LINE: [u32; 5] = [2, 100, 300, 500, 800];
