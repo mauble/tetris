@@ -1,0 +1,104 @@
+name: Release on Version Change
+
+on:
+  push:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  BINARY_NAME: tetris
+
+jobs:
+  check-version-and-release:
+    name: Check Version & Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.set-release.outputs.created }}
+      version: ${{ steps.set-release.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # required to access previous commit history
+
+      - name: Extract current version
+        id: version
+        run: |
+          VERSION=$(grep '^version' Cargo.toml | head -n1 | cut -d'"' -f2)
+          echo "Current version is $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get previous Cargo.toml
+        id: previous
+        run: |
+          git show HEAD~1:Cargo.toml > old_cargo.toml || echo "[package]\nversion=\"0.0.0\"" > old_cargo.toml
+          PREV_VERSION=$(grep '^version' old_cargo.toml | head -n1 | cut -d'"' -f2)
+          echo "Previous version: $PREV_VERSION"
+          echo "prev_version=$PREV_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if release already exists
+        id: check-release
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          EXISTS=$(gh release view "v$VERSION" --json tagName --jq .tagName || echo "none")
+          echo "Existing release: $EXISTS"
+          echo "exists=$EXISTS" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Conditionally create release
+        id: set-release
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          PREV_VERSION="${{ steps.previous.outputs.prev_version }}"
+          EXISTS="${{ steps.check-release.outputs.exists }}"
+
+          if [ "$VERSION" != "$PREV_VERSION" ] && [ "$EXISTS" = "none" ]; then
+            echo "Creating release for version $VERSION"
+            gh release create "v$VERSION" --title "v$VERSION" --notes "Automated release for version $VERSION"
+            echo "created=true" >> $GITHUB_OUTPUT
+          else
+            echo "No release needed"
+            echo "created=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-and-upload:
+    name: Build & Upload Binaries
+    needs: check-version-and-release
+    if: needs.check-version-and-release.outputs.release_created == 'true'
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: tetris-linux
+            binary_path: target/release/tetris
+          - os: windows-latest
+            artifact: tetris-windows
+            binary_path: target/release/tetris.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Release
+        run: cargo build --release
+
+      - name: Rename binary
+        run: |
+          mkdir output
+          cp ${{ matrix.binary_path }} output/${{ matrix.artifact }}
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: output/${{ matrix.artifact }}
+          tag_name: v${{ needs.check-version-and-release.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
