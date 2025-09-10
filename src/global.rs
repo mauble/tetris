@@ -31,6 +31,8 @@ pub const GRAVITY_DELAY: u64 = 1000;
 pub const TETROMINO_SPAWN_POS: Vec2 = Vec2::new((BOARD_WIDTH / 2 - 2) as f32, -1.0);
 pub const TETROMINO_PREVIEW_POS: Vec2 = Vec2::new(BOARD_WIDTH as f32 + 0.5, 2.0);
 
+pub const SCORE_PER_LINE: [u32; 5] = [2, 100, 300, 500, 800];
+
 pub const JLSTZ_KICKS: [((i32, i32), [(i32, i32); 5]); 8] = [
     ((0, 1), [(0, 0), (-1, 0), (-1, 1), (0, -2), (-1, -2)]),
     ((1, 0), [(0, 0), (1, 0), (1, -1), (0, 2), (1, 2)]),
