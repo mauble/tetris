@@ -14,9 +14,9 @@ pub struct Game {
     pub preview: Tetromino,
     pub phantom: Tetromino,
 
-    pub score: i32,
-    pub lines: i32,
-    pub level: i32,
+    pub score: u32,
+    pub lines: u32,
+    pub level: u32,
 
     direction: Vec2,
 
@@ -184,9 +184,8 @@ impl Game {
         }
 
         let new_lines = cleared_lines.len();
-        self.lines += new_lines as i32;
-        self.score +=
-            vec![0, 40, 100, 300, 1200][new_lines] * (self.level + 1) + 2 * (self.level + 1);
+        self.lines += new_lines as u32;
+        self.score += SCORE_PER_LINE[new_lines] * (self.level + 1);
         if self.level != self.lines / 10 {
             self.level = self.lines / 10;
             self.gravity_delay = (1000 / (self.level + 1) + 200) as u64;
