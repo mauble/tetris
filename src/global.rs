@@ -39,6 +39,7 @@ pub struct Controls {
     pub soft_drop: KeyCode,
     pub hard_drop: KeyCode,
     pub rotate_clockwise: KeyCode,
+    pub rotate_counterclockwise: KeyCode,
 }
 
 pub const CONTROLS_PLAYER1: Controls = Controls {
@@ -47,6 +48,7 @@ pub const CONTROLS_PLAYER1: Controls = Controls {
     soft_drop: KeyCode::S,
     hard_drop: KeyCode::Space,
     rotate_clockwise: KeyCode::W,
+    rotate_counterclockwise: KeyCode::LeftShift,
 };
 
 pub const JLSTZ_KICKS: [((i32, i32), [(i32, i32); 5]); 8] = [
