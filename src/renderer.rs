@@ -91,7 +91,7 @@ impl<'a> Renderer<'a> {
     fn draw_text(&self, text: &str, pos: Vec2, grid: bool) {
         let mut _pos = pos;
         if grid {
-            _pos *= BLOCK_SIZE;
+            _pos = get_pos(pos);
         }
         _pos -= get_text_center(&text, Some(&self.assets.font), FONT_SIZE, 1.0, 0.0);
         draw_text_ex(
