@@ -26,15 +26,19 @@ fn conf() -> Conf {
 async fn main() {
     let assets = Assets::new().await;
 
-    let renderer = Renderer::new(&assets, 0);
-
+    let mut renderer = Renderer::new(&assets, &CONTROLS_PLAYER1, 0);
     let mut player = Game::new(&CONTROLS_PLAYER1);
 
     loop {
         clear_background(get_color(UI_COLOR, 255));
 
-        player.run();
-        renderer.draw_game(&player);
+        renderer.update();
+
+        if !renderer.paused {
+            player.update();
+        }
+
+        renderer.draw(&player);
 
         next_frame().await;
     }

@@ -5,24 +5,38 @@ use crate::tetromino::Tetromino;
 use macroquad::prelude::*;
 
 pub struct Renderer<'a> {
-    player_offset: u32,
     assets: &'a Assets,
+    controls: &'a Controls,
+    player_offset: u32,
+    pub paused: bool,
 }
 
 impl<'a> Renderer<'a> {
-    pub fn new(assets: &'a Assets, player_offset: u32) -> Self {
+    pub fn new(assets: &'a Assets, controls: &'a Controls, player_offset: u32) -> Self {
         Self {
-            player_offset: player_offset * GAME_WIDTH as u32,
             assets,
+            controls,
+            player_offset: player_offset * GAME_WIDTH as u32,
+            paused: false,
         }
     }
 
-    pub fn draw_game(&self, game: &Game) {
+    pub fn update(&mut self) {
+        if is_key_pressed(self.controls.pause) {
+            self.paused = !self.paused;
+        }
+    }
+
+    pub fn draw(&self, game: &Game) {
+        self.draw_game(&game);
+        self.draw_paused();
+    }
+
+    fn draw_game(&self, game: &Game) {
         for y in 0..BOARD_HEIGHT {
             for x in 0..BOARD_WIDTH {
                 Self::draw_block(
-                    x as f32 + self.player_offset as f32,
-                    y as f32,
+                    Vec2::new(x as f32 + self.player_offset as f32, y as f32),
                     game.board[y][x],
                     false,
                 );
@@ -33,15 +47,64 @@ impl<'a> Renderer<'a> {
         self.draw_tetromino(game.phantom, true, false);
         self.draw_tetromino(game.preview, false, true);
 
-        let x_offset = BOARD_WIDTH as f32 + 2.5;
+        let x_offset = BOARD_WIDTH as f32 + 2.5 + self.player_offset as f32;
         let y_offset = TETROMINO_PREVIEW_POS.y + 5.5;
 
-        self.draw_text("Score", 0.0, 0.0, x_offset, y_offset);
-        self.draw_text(&game.score.to_string(), 0.0, 1.5, x_offset, y_offset);
-        self.draw_text("Lines", 0.0, 4.0, x_offset, y_offset);
-        self.draw_text(&game.lines.to_string(), 0.0, 5.5, x_offset, y_offset);
-        self.draw_text("Level", 0.0, 8.0, x_offset, y_offset);
-        self.draw_text(&game.level.to_string(), 0.0, 9.5, x_offset, y_offset);
+        self.draw_text("Score", Vec2::new(x_offset, y_offset), true);
+        self.draw_text(
+            &game.score.to_string(),
+            Vec2::new(x_offset, y_offset + 1.5),
+            true,
+        );
+        self.draw_text("Lines", Vec2::new(x_offset, y_offset + 4.0), true);
+        self.draw_text(
+            &game.lines.to_string(),
+            Vec2::new(x_offset, y_offset + 5.5),
+            true,
+        );
+        self.draw_text("Level", Vec2::new(x_offset, y_offset + 8.0), true);
+        self.draw_text(
+            &game.level.to_string(),
+            Vec2::new(x_offset, y_offset + 9.5),
+            true,
+        );
+    }
+
+    fn draw_paused(&self) {
+        if self.paused {
+            draw_rectangle(
+                0.0,
+                0.0,
+                screen_width(),
+                screen_height(),
+                Color::new(0.0, 0.0, 0.0, 0.9),
+            );
+
+            self.draw_text(
+                "Pause",
+                Vec2::new(screen_width(), screen_height()) * 0.5,
+                false,
+            );
+        }
+    }
+
+    fn draw_text(&self, text: &str, pos: Vec2, grid: bool) {
+        let mut _pos = pos;
+        if grid {
+            _pos *= BLOCK_SIZE;
+        }
+        _pos -= get_text_center(&text, Some(&self.assets.font), FONT_SIZE, 1.0, 0.0);
+        draw_text_ex(
+            &text,
+            _pos.x,
+            _pos.y,
+            TextParams {
+                font_size: FONT_SIZE,
+                font: Some(&self.assets.font),
+                color: get_color(FONT_COLOR, 255),
+                ..Default::default()
+            },
+        );
     }
 
     fn draw_tetromino(&self, tetromino: Tetromino, phantom: bool, preview: bool) {
@@ -53,8 +116,10 @@ impl<'a> Renderer<'a> {
                         preview_offset = tetromino.preview_offset();
                     }
                     Self::draw_block(
-                        tetromino.pos.x + x as f32 + preview_offset + self.player_offset as f32,
-                        tetromino.pos.y + y as f32,
+                        Vec2::new(
+                            tetromino.pos.x + x as f32 + preview_offset + self.player_offset as f32,
+                            tetromino.pos.y + y as f32,
+                        ),
                         tetromino.color,
                         phantom,
                     );
@@ -63,31 +128,15 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    fn draw_text(&self, text: &str, x: f32, y: f32, x_offset: f32, y_offset: f32) {
-        let center = get_text_center(&text, Some(&self.assets.font), FONT_SIZE, 1.0, 0.0);
-        draw_text_ex(
-            &text,
-            (x_offset + self.player_offset as f32 + x) * BLOCK_SIZE - center.x,
-            (y_offset + y) * BLOCK_SIZE - center.y,
-            TextParams {
-                font_size: FONT_SIZE,
-                font: Some(&self.assets.font),
-                color: get_color(FONT_COLOR, 255),
-                ..Default::default()
-            },
-        );
-    }
-
-    fn draw_block(x: f32, y: f32, color: (u8, u8, u8), phantom: bool) {
-        let x_pos = x * BLOCK_SIZE;
-        let y_pos = y * BLOCK_SIZE;
+    fn draw_block(grid_pos: Vec2, color: (u8, u8, u8), phantom: bool) {
+        let pos = get_pos(grid_pos);
 
         let color_var = get_color(color, 255);
 
         if phantom {
             draw_rectangle_lines(
-                x_pos + 4.0,
-                y_pos + 4.0,
+                pos.x + 4.0,
+                pos.y + 4.0,
                 BLOCK_SIZE - 8.0,
                 BLOCK_SIZE - 8.0,
                 2.0,
@@ -95,8 +144,8 @@ impl<'a> Renderer<'a> {
             );
         } else {
             draw_rectangle(
-                x_pos + 1.0,
-                y_pos + 1.0,
+                pos.x + 1.0,
+                pos.y + 1.0,
                 BLOCK_SIZE - 2.0,
                 BLOCK_SIZE - 2.0,
                 Color::from_rgba(
@@ -107,16 +156,16 @@ impl<'a> Renderer<'a> {
                 ),
             );
             draw_rectangle_lines(
-                x_pos,
-                y_pos,
+                pos.x,
+                pos.y,
                 BLOCK_SIZE,
                 BLOCK_SIZE,
                 1.0,
                 get_color(UI_COLOR, 255),
             );
             draw_rectangle(
-                x_pos + 4.0,
-                y_pos + 4.0,
+                pos.x + 4.0,
+                pos.y + 4.0,
                 BLOCK_SIZE - 8.0,
                 BLOCK_SIZE - 8.0,
                 color_var,
