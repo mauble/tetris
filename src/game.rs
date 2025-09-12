@@ -39,15 +39,15 @@ impl<'a> Game<'a> {
 
             board: vec![vec![BOARD_COLOR; BOARD_WIDTH]; BOARD_HEIGHT],
 
-            piece: Tetromino::new(0, TETROMINO_SPAWN_POS),
-            phantom: Tetromino::new(0, TETROMINO_SPAWN_POS),
-            preview: Tetromino::new(0, TETROMINO_PREVIEW_POS),
+            piece: Tetromino::new(0, Vec2::ZERO),
+            phantom: Tetromino::new(0, Vec2::ZERO),
+            preview: Tetromino::new(0, Vec2::ZERO),
 
             score: 0,
             lines: 0,
             level: 0,
 
-            direction: Vec2::new(0.0, 0.0),
+            direction: Vec2::ZERO,
 
             x_move_delay: X_MOVE_DELAY,
             y_move_delay: Y_MOVE_DELAY,
@@ -63,7 +63,7 @@ impl<'a> Game<'a> {
         game.refill_bag();
 
         game.piece = Tetromino::new(game.bag.pop().unwrap(), TETROMINO_SPAWN_POS);
-        game.preview = Tetromino::new(game.bag.pop().unwrap(), TETROMINO_PREVIEW_POS);
+        game.preview = Tetromino::new(game.bag.pop().unwrap(), Vec2::ZERO);
 
         return game;
     }
@@ -88,12 +88,12 @@ impl<'a> Game<'a> {
             self.refill_bag();
         }
 
-        self.preview = Tetromino::new(self.bag.pop().unwrap(), TETROMINO_PREVIEW_POS);
+        self.preview = Tetromino::new(self.bag.pop().unwrap(), Vec2::ZERO);
     }
 
     fn input(&mut self) {
         let time = get_millis();
-        self.direction = Vec2::new(0.0, 0.0);
+        self.direction = Vec2::ZERO;
 
         if time - self.last_x_move >= self.x_move_delay {
             if is_key_down(self.controls.left) {
