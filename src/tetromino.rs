@@ -31,16 +31,15 @@ impl Tetromino {
         }
     }
 
-    pub fn preview_offset(&self) -> f32 {
+    pub fn ui_offset(&self) -> f32 {
         let shape = self.shape();
         let count = (1..4)
             .flat_map(|row| (0..4).filter(move |&col| shape[row][col] && !shape[row - 1][col]))
             .count();
 
         if count == 3 {
-            0.5
-        } else {
-            0.0
+            return -1.5;
         }
+        return -2.0;
     }
 }
