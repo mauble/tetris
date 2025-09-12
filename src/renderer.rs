@@ -5,21 +5,23 @@ use crate::tetromino::Tetromino;
 use macroquad::prelude::*;
 
 pub struct Renderer<'a> {
-    offset: u32,
+    player_offset: u32,
     assets: &'a Assets,
 }
 
 impl<'a> Renderer<'a> {
-    pub fn new(assets: &'a Assets, offset: u32) -> Self {
-        let offset = offset * GAME_WIDTH as u32;
-        Self { offset, assets }
+    pub fn new(assets: &'a Assets, player_offset: u32) -> Self {
+        Self {
+            player_offset: player_offset * GAME_WIDTH as u32,
+            assets,
+        }
     }
 
     pub fn draw_game(&self, game: &Game) {
         for y in 0..BOARD_HEIGHT {
             for x in 0..BOARD_WIDTH {
                 Self::draw_block(
-                    x as f32 + self.offset as f32,
+                    x as f32 + self.player_offset as f32,
                     y as f32,
                     game.board[y][x],
                     false,
@@ -51,7 +53,7 @@ impl<'a> Renderer<'a> {
                         preview_offset = tetromino.preview_offset();
                     }
                     Self::draw_block(
-                        tetromino.pos.x + x as f32 + preview_offset + self.offset as f32,
+                        tetromino.pos.x + x as f32 + preview_offset + self.player_offset as f32,
                         tetromino.pos.y + y as f32,
                         tetromino.color,
                         phantom,
@@ -65,7 +67,7 @@ impl<'a> Renderer<'a> {
         let center = get_text_center(&text, Some(&self.assets.font), FONT_SIZE, 1.0, 0.0);
         draw_text_ex(
             &text,
-            (x_offset + self.offset as f32 + x) * BLOCK_SIZE - center.x,
+            (x_offset + self.player_offset as f32 + x) * BLOCK_SIZE - center.x,
             (y_offset + y) * BLOCK_SIZE - center.y,
             TextParams {
                 font_size: FONT_SIZE,
