@@ -100,6 +100,7 @@ impl<'a> Game<'a> {
                 self.direction.x = -1.0;
                 self.last_x_move = time;
             }
+
             if is_key_down(self.controls.right) {
                 self.direction.x = 1.0;
                 self.last_x_move = time;
@@ -230,6 +231,7 @@ impl<'a> Game<'a> {
                 }
             }
         }
+
         self.clear_lines();
         self.update_bag();
         self.check_game_over();
