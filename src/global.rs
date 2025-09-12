@@ -26,15 +26,15 @@ pub const BLOCK_SIZE: f32 = 40.0;
 pub const BOARD_WIDTH: usize = 10;
 pub const BOARD_HEIGHT: usize = 20;
 
-pub const GAME_WIDTH: usize = BOARD_WIDTH + 5;
+pub const GAME_SIDE_WIDTH: f32 = 6.0;
+pub const GAME_WIDTH: f32 = BOARD_WIDTH as f32 + GAME_SIDE_WIDTH * 2.0;
 
 pub const X_MOVE_DELAY: u64 = 120;
 pub const Y_MOVE_DELAY: u64 = 50;
 pub const GRAVITY_DELAY: u64 = 1000;
-pub const LOCK_DELAY: u64 = 200;
+pub const LOCK_DELAY: u64 = 180;
 
-pub const TETROMINO_SPAWN_POS: Vec2 = Vec2::new((BOARD_WIDTH / 2 - 2) as f32, -2.0);
-pub const TETROMINO_PREVIEW_POS: Vec2 = Vec2::new(BOARD_WIDTH as f32 + 0.5, 2.0);
+pub const TETROMINO_SPAWN_POS: Vec2 = Vec2::new(BOARD_WIDTH as f32 / 2.0 - 2.0, -2.0);
 
 pub const SCORE_PER_LINE: [u32; 5] = [2, 100, 300, 500, 800];
 
@@ -45,16 +45,18 @@ pub struct Controls {
     pub hard_drop: KeyCode,
     pub rotate_clockwise: KeyCode,
     pub rotate_counterclockwise: KeyCode,
+    pub hold: KeyCode,
     pub pause: KeyCode,
 }
 
 pub const CONTROLS_PLAYER1: Controls = Controls {
-    left: KeyCode::A,
-    right: KeyCode::D,
-    soft_drop: KeyCode::S,
+    left: KeyCode::Left,
+    right: KeyCode::Right,
+    soft_drop: KeyCode::Down,
     hard_drop: KeyCode::Space,
-    rotate_clockwise: KeyCode::W,
-    rotate_counterclockwise: KeyCode::LeftShift,
+    rotate_clockwise: KeyCode::Up,
+    rotate_counterclockwise: KeyCode::LeftControl,
+    hold: KeyCode::C,
     pause: KeyCode::Escape,
 };
 
