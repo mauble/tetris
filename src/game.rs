@@ -116,6 +116,7 @@ impl<'a> Game<'a> {
 
         if is_key_pressed(self.controls.hard_drop) {
             self.drop_tetromino();
+            return;
         }
 
         let mut clockwise = false;
@@ -135,15 +136,17 @@ impl<'a> Game<'a> {
             && self.direction.x != 0.0
         {
             self.piece.pos.x += self.direction.x;
-            self.last_lock = time;
         }
 
         if !self.check_collision(self.piece, Vec2::new(0.0, self.direction.y))
             && self.direction.y != 0.0
         {
             self.piece.pos.y += self.direction.y;
+            self.last_lock = 0;
         } else if self.direction.y > 0.0 {
-            if time - self.last_lock >= self.lock_delay {
+            if self.last_lock == 0 {
+                self.last_lock = time;
+            } else if time - self.last_lock >= self.lock_delay {
                 self.place_tetromino();
             }
         }
