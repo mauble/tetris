@@ -7,16 +7,14 @@ use macroquad::prelude::*;
 pub struct Renderer<'a> {
     assets: &'a Assets,
     controls: &'a Controls,
-    player_offset: u32,
     pub paused: bool,
 }
 
 impl<'a> Renderer<'a> {
-    pub fn new(assets: &'a Assets, controls: &'a Controls, player_offset: u32) -> Self {
+    pub fn new(assets: &'a Assets, controls: &'a Controls) -> Self {
         Self {
             assets,
             controls,
-            player_offset: player_offset * GAME_WIDTH as u32,
             paused: false,
         }
     }
@@ -28,46 +26,55 @@ impl<'a> Renderer<'a> {
     }
 
     pub fn draw(&self, game: &Game) {
-        self.draw_game(&game);
+        self.draw_left_panel(&game);
+        self.draw_center_panel(&game);
+        self.draw_right_panel(&game);
         self.draw_paused();
     }
 
-    fn draw_game(&self, game: &Game) {
-        for y in 0..BOARD_HEIGHT {
-            for x in 0..BOARD_WIDTH {
+    fn draw_left_panel(&self, game: &Game) {
+        let x_text = GAME_SIDE_WIDTH / 2.0;
+        let y_text = 2.0;
+
+        self.draw_text("Hold:", Vec2::new(x_text, y_text), true);
+    }
+
+    fn draw_center_panel(&self, game: &Game) {
+        for y in 0..BOARD_HEIGHT as usize {
+            for x in 0..BOARD_WIDTH as usize {
                 Self::draw_block(
-                    Vec2::new(x as f32 + self.player_offset as f32, y as f32),
+                    Vec2::new(x as f32 + GAME_SIDE_WIDTH, y as f32),
                     game.board[y][x],
                     false,
                 );
             }
         }
 
-        self.draw_tetromino(game.piece, false, false);
-        self.draw_tetromino(game.phantom, true, false);
-        self.draw_tetromino(game.preview, false, true);
+        self.draw_tetromino(game.piece, false, Vec2::ZERO);
+        self.draw_tetromino(game.phantom, true, Vec2::ZERO);
+    }
 
-        let x_offset = BOARD_WIDTH as f32 + 2.5 + self.player_offset as f32;
-        let y_offset = TETROMINO_PREVIEW_POS.y + 5.5;
+    fn draw_right_panel(&self, game: &Game) {
+        let x_text = GAME_SIDE_WIDTH + BOARD_WIDTH as f32 + GAME_SIDE_WIDTH / 2.0;
+        let y_text = BOARD_HEIGHT as f32 - 2.0;
 
-        self.draw_text("Score", Vec2::new(x_offset, y_offset), true);
+        self.draw_text("Next:", Vec2::new(x_text, 2.0), true);
+        self.draw_text("Score", Vec2::new(x_text, y_text - 9.5), true);
         self.draw_text(
             &game.score.to_string(),
-            Vec2::new(x_offset, y_offset + 1.5),
+            Vec2::new(x_text, y_text - 8.0),
             true,
         );
-        self.draw_text("Lines", Vec2::new(x_offset, y_offset + 4.0), true);
+        self.draw_text("Lines", Vec2::new(x_text, y_text - 5.5), true);
         self.draw_text(
             &game.lines.to_string(),
-            Vec2::new(x_offset, y_offset + 5.5),
+            Vec2::new(x_text, y_text - 4.0),
             true,
         );
-        self.draw_text("Level", Vec2::new(x_offset, y_offset + 8.0), true);
-        self.draw_text(
-            &game.level.to_string(),
-            Vec2::new(x_offset, y_offset + 9.5),
-            true,
-        );
+        self.draw_text("Level", Vec2::new(x_text, y_text - 1.5), true);
+        self.draw_text(&game.level.to_string(), Vec2::new(x_text, y_text), true);
+
+        self.draw_tetromino(game.preview, false, Vec2::new(x_text, 3.2));
     }
 
     fn draw_paused(&self) {
@@ -89,15 +96,15 @@ impl<'a> Renderer<'a> {
     }
 
     fn draw_text(&self, text: &str, pos: Vec2, grid: bool) {
-        let mut _pos = pos;
+        let mut calc_pos = pos;
         if grid {
-            _pos = get_pos(pos);
+            calc_pos = get_pos(pos);
         }
-        _pos -= get_text_center(&text, Some(&self.assets.font), FONT_SIZE, 1.0, 0.0);
+        calc_pos -= get_text_center(&text, Some(&self.assets.font), FONT_SIZE, 1.0, 0.0);
         draw_text_ex(
             &text,
-            _pos.x,
-            _pos.y,
+            calc_pos.x,
+            calc_pos.y,
             TextParams {
                 font_size: FONT_SIZE,
                 font: Some(&self.assets.font),
@@ -107,22 +114,16 @@ impl<'a> Renderer<'a> {
         );
     }
 
-    fn draw_tetromino(&self, tetromino: Tetromino, phantom: bool, preview: bool) {
+    fn draw_tetromino(&self, tetromino: Tetromino, phantom: bool, ui_grid_pos: Vec2) {
         for y in 0..4 {
             for x in 0..4 {
                 if tetromino.shape()[y][x] {
-                    let mut preview_offset = 0.0;
-                    if preview {
-                        preview_offset = tetromino.preview_offset();
+                    let mut tetromino_pos = tetromino.pos + Vec2::new(GAME_SIDE_WIDTH, 0.0);
+                    if ui_grid_pos != Vec2::ZERO {
+                        tetromino_pos = Vec2::new(tetromino.ui_offset(), 0.0) + ui_grid_pos;
                     }
-                    Self::draw_block(
-                        Vec2::new(
-                            tetromino.pos.x + x as f32 + preview_offset + self.player_offset as f32,
-                            tetromino.pos.y + y as f32,
-                        ),
-                        tetromino.color,
-                        phantom,
-                    );
+                    tetromino_pos += Vec2::new(x as f32, y as f32);
+                    Self::draw_block(tetromino_pos, tetromino.color, phantom);
                 }
             }
         }
@@ -130,7 +131,6 @@ impl<'a> Renderer<'a> {
 
     fn draw_block(grid_pos: Vec2, color: (u8, u8, u8), phantom: bool) {
         let pos = get_pos(grid_pos);
-
         let color_var = get_color(color, 255);
 
         if phantom {

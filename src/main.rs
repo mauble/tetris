@@ -26,7 +26,7 @@ fn conf() -> Conf {
 async fn main() {
     let assets = Assets::new().await;
 
-    let mut renderer = Renderer::new(&assets, &CONTROLS_PLAYER1, 0);
+    let mut renderer = Renderer::new(&assets, &CONTROLS_PLAYER1);
     let mut player = Game::new(&CONTROLS_PLAYER1);
 
     loop {
