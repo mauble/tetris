@@ -12,6 +12,10 @@ pub fn get_color(color: (u8, u8, u8), a: u8) -> Color {
     return Color::from_rgba(color.0, color.1, color.2, a);
 }
 
+pub fn get_pos(grid_pos: Vec2) -> Vec2 {
+    return grid_pos * BLOCK_SIZE;
+}
+
 pub const FONT_COLOR: (u8, u8, u8) = (255, 255, 255);
 pub const BOARD_COLOR: (u8, u8, u8) = (20, 20, 20);
 pub const UI_COLOR: (u8, u8, u8) = (30, 30, 30);
@@ -41,6 +45,7 @@ pub struct Controls {
     pub hard_drop: KeyCode,
     pub rotate_clockwise: KeyCode,
     pub rotate_counterclockwise: KeyCode,
+    pub pause: KeyCode,
 }
 
 pub const CONTROLS_PLAYER1: Controls = Controls {
@@ -50,6 +55,7 @@ pub const CONTROLS_PLAYER1: Controls = Controls {
     hard_drop: KeyCode::Space,
     rotate_clockwise: KeyCode::W,
     rotate_counterclockwise: KeyCode::LeftShift,
+    pause: KeyCode::Escape,
 };
 
 pub const JLSTZ_KICKS: [((i32, i32), [(i32, i32); 5]); 8] = [

@@ -68,7 +68,7 @@ impl<'a> Game<'a> {
         return game;
     }
 
-    pub fn run(&mut self) {
+    pub fn update(&mut self) {
         self.input();
         self.update_phantom();
     }
