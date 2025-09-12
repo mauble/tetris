@@ -37,6 +37,12 @@ impl<'a> Renderer<'a> {
         let y_text = 2.0;
 
         self.draw_text("Hold:", Vec2::new(x_text, y_text), true);
+
+        if game.empty_hold {
+            self.draw_text("Press C.", Vec2::new(x_text, 5.3), true);
+        } else {
+            self.draw_tetromino(game.hold, false, Vec2::new(x_text, 3.5));
+        }
     }
 
     fn draw_center_panel(&self, game: &Game) {
@@ -59,22 +65,22 @@ impl<'a> Renderer<'a> {
         let y_text = BOARD_HEIGHT as f32 - 2.0;
 
         self.draw_text("Next:", Vec2::new(x_text, 2.0), true);
-        self.draw_text("Score", Vec2::new(x_text, y_text - 9.5), true);
+        self.draw_text("Score", Vec2::new(x_text, y_text - 8.5), true);
         self.draw_text(
             &game.score.to_string(),
-            Vec2::new(x_text, y_text - 8.0),
+            Vec2::new(x_text, y_text - 7.0),
             true,
         );
-        self.draw_text("Lines", Vec2::new(x_text, y_text - 5.5), true);
+        self.draw_text("Lines", Vec2::new(x_text, y_text - 5.0), true);
         self.draw_text(
             &game.lines.to_string(),
-            Vec2::new(x_text, y_text - 4.0),
+            Vec2::new(x_text, y_text - 3.5),
             true,
         );
         self.draw_text("Level", Vec2::new(x_text, y_text - 1.5), true);
         self.draw_text(&game.level.to_string(), Vec2::new(x_text, y_text), true);
 
-        self.draw_tetromino(game.preview, false, Vec2::new(x_text, 3.2));
+        self.draw_tetromino(game.preview, false, Vec2::new(x_text, 3.5));
     }
 
     fn draw_paused(&self) {

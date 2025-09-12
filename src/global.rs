@@ -20,17 +20,17 @@ pub const FONT_COLOR: (u8, u8, u8) = (255, 255, 255);
 pub const BOARD_COLOR: (u8, u8, u8) = (20, 20, 20);
 pub const UI_COLOR: (u8, u8, u8) = (30, 30, 30);
 
-pub const FONT_SIZE: u16 = 32;
+pub const FONT_SIZE: u16 = 30;
 pub const BLOCK_SIZE: f32 = 40.0;
 
 pub const BOARD_WIDTH: usize = 10;
 pub const BOARD_HEIGHT: usize = 20;
 
-pub const GAME_SIDE_WIDTH: f32 = 6.0;
+pub const GAME_SIDE_WIDTH: f32 = 5.5;
 pub const GAME_WIDTH: f32 = BOARD_WIDTH as f32 + GAME_SIDE_WIDTH * 2.0;
 
-pub const X_MOVE_DELAY: u64 = 120;
-pub const Y_MOVE_DELAY: u64 = 50;
+pub const X_MOVE_DELAY: u64 = 135;
+pub const Y_MOVE_DELAY: u64 = 55;
 pub const GRAVITY_DELAY: u64 = 1000;
 pub const LOCK_DELAY: u64 = 180;
 

@@ -3,16 +3,20 @@ use crate::tetromino::Tetromino;
 use macroquad::prelude::*;
 use macroquad::rand::ChooseRandom;
 use macroquad::rand::RandGenerator;
+use std::mem::swap;
 
 pub struct Game<'a> {
     controls: &'a Controls,
     bag: Vec<usize>,
+    used_hold: bool,
+    pub empty_hold: bool,
 
     pub board: Vec<Vec<(u8, u8, u8)>>,
 
     pub piece: Tetromino,
     pub preview: Tetromino,
     pub phantom: Tetromino,
+    pub hold: Tetromino,
 
     pub score: u32,
     pub lines: u32,
@@ -36,12 +40,15 @@ impl<'a> Game<'a> {
         let mut game = Game {
             controls,
             bag: Vec::new(),
+            used_hold: false,
+            empty_hold: true,
 
             board: vec![vec![BOARD_COLOR; BOARD_WIDTH]; BOARD_HEIGHT],
 
             piece: Tetromino::new(0, Vec2::ZERO),
             phantom: Tetromino::new(0, Vec2::ZERO),
             preview: Tetromino::new(0, Vec2::ZERO),
+            hold: Tetromino::new(0, Vec2::ZERO),
 
             score: 0,
             lines: 0,
@@ -89,6 +96,7 @@ impl<'a> Game<'a> {
         }
 
         self.preview = Tetromino::new(self.bag.pop().unwrap(), Vec2::ZERO);
+        self.used_hold = false;
     }
 
     fn input(&mut self) {
@@ -116,6 +124,11 @@ impl<'a> Game<'a> {
 
         if is_key_pressed(self.controls.hard_drop) {
             self.drop_tetromino();
+            return;
+        }
+
+        if is_key_pressed(self.controls.hold) && !self.used_hold {
+            self.hold_tetromino();
             return;
         }
 
@@ -185,9 +198,73 @@ impl<'a> Game<'a> {
         }
     }
 
+    fn rotate_tetromino(&mut self, clockwise: bool) {
+        let from = self.piece.rotation as i32;
+        let mut test_piece = self.piece.clone();
+        test_piece.rotate(clockwise);
+        let to = test_piece.rotation as i32;
+
+        let kicks = match self.piece.id {
+            0 => I_KICKS
+                .iter()
+                .find(|((f, t), _)| *f == from && *t == to)
+                .map(|(_, kicks)| kicks),
+            3 => Some(&[(0, 0); 5]),
+            _ => JLSTZ_KICKS
+                .iter()
+                .find(|((f, t), _)| *f == from && *t == to)
+                .map(|(_, kicks)| kicks),
+        };
+
+        if let Some(kicks) = kicks {
+            for &(kx, ky) in kicks.iter() {
+                let offset = Vec2::new(kx as f32, ky as f32);
+                if !self.check_collision(test_piece.clone(), offset) {
+                    self.piece.rotate(clockwise);
+                    self.piece.pos += offset;
+                    self.last_lock = get_millis();
+                    return;
+                }
+            }
+        }
+    }
+
+    fn hold_tetromino(&mut self) {
+        self.last_lock = 0;
+
+        if self.empty_hold {
+            self.hold = self.piece.clone();
+            self.update_bag();
+            self.empty_hold = false;
+        } else {
+            swap(&mut self.piece, &mut self.hold);
+            self.piece.pos = TETROMINO_SPAWN_POS;
+        }
+
+        self.used_hold = true; // mark that we've used hold
+    }
+
     fn drop_tetromino(&mut self) {
         self.piece = self.phantom;
         self.place_tetromino();
+    }
+
+    fn place_tetromino(&mut self) {
+        for y in 0..4 {
+            for x in 0..4 {
+                if self.piece.shape()[y][x] {
+                    let board_x = (self.piece.pos.x as i32 + x as i32) as usize;
+                    let board_y = (self.piece.pos.y as i32 + y as i32) as usize;
+                    if board_y < BOARD_HEIGHT {
+                        self.board[board_y][board_x] = self.piece.color;
+                    }
+                }
+            }
+        }
+
+        self.clear_lines();
+        self.update_bag();
+        self.check_game_over();
     }
 
     fn clear_lines(&mut self) {
@@ -218,55 +295,6 @@ impl<'a> Game<'a> {
             if self.board[0][x] != BOARD_COLOR {
                 *self = Game::new(&self.controls);
                 return;
-            }
-        }
-    }
-
-    fn place_tetromino(&mut self) {
-        for y in 0..4 {
-            for x in 0..4 {
-                if self.piece.shape()[y][x] {
-                    let board_x = (self.piece.pos.x as i32 + x as i32) as usize;
-                    let board_y = (self.piece.pos.y as i32 + y as i32) as usize;
-                    if board_y < BOARD_HEIGHT {
-                        self.board[board_y][board_x] = self.piece.color;
-                    }
-                }
-            }
-        }
-
-        self.clear_lines();
-        self.update_bag();
-        self.check_game_over();
-    }
-
-    fn rotate_tetromino(&mut self, clockwise: bool) {
-        let from = self.piece.rotation as i32;
-        let mut test_piece = self.piece.clone();
-        test_piece.rotate(clockwise);
-        let to = test_piece.rotation as i32;
-
-        let kicks = match self.piece.id {
-            0 => I_KICKS
-                .iter()
-                .find(|((f, t), _)| *f == from && *t == to)
-                .map(|(_, kicks)| kicks),
-            3 => Some(&[(0, 0); 5]),
-            _ => JLSTZ_KICKS
-                .iter()
-                .find(|((f, t), _)| *f == from && *t == to)
-                .map(|(_, kicks)| kicks),
-        };
-
-        if let Some(kicks) = kicks {
-            for &(kx, ky) in kicks.iter() {
-                let offset = Vec2::new(kx as f32, ky as f32);
-                if !self.check_collision(test_piece.clone(), offset) {
-                    self.piece.rotate(clockwise);
-                    self.piece.pos += offset;
-                    self.last_lock = get_millis();
-                    return;
-                }
             }
         }
     }
