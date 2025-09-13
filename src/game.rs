@@ -169,8 +169,7 @@ impl<'a> Game<'a> {
         for y in 0..4 {
             for x in 0..4 {
                 if tetromino.shape()[y][x] {
-                    let mut index = Vec2::new(x as f32, y as f32);
-                    index += tetromino.pos + offset;
+                    let index = Vec2::new(x as f32, y as f32) + tetromino.pos + offset;
 
                     if index.x < 0.0
                         || index.x >= BOARD_WIDTH as f32
