@@ -241,7 +241,7 @@ impl<'a> Game<'a> {
             self.piece.pos = TETROMINO_SPAWN_POS;
         }
 
-        self.used_hold = true; // mark that we've used hold
+        self.used_hold = true;
     }
 
     fn drop_tetromino(&mut self) {
@@ -253,10 +253,13 @@ impl<'a> Game<'a> {
         for y in 0..4 {
             for x in 0..4 {
                 if self.piece.shape()[y][x] {
-                    let board_x = (self.piece.pos.x as i32 + x as i32) as usize;
-                    let board_y = (self.piece.pos.y as i32 + y as i32) as usize;
-                    if board_y < BOARD_HEIGHT {
-                        self.board[board_y][board_x] = self.piece.color;
+                    let pos = self.piece.pos + Vec2::new(x as f32, y as f32);
+
+                    if pos.y <= -1.0 {
+                        self.game_over();
+                        return;
+                    } else if pos.y >= 0.0 && pos.y < BOARD_HEIGHT as f32 {
+                        self.board[pos.y as usize][pos.x as usize] = self.piece.color;
                     }
                 }
             }
@@ -264,7 +267,6 @@ impl<'a> Game<'a> {
 
         self.clear_lines();
         self.update_bag();
-        self.check_game_over();
     }
 
     fn clear_lines(&mut self) {
@@ -290,12 +292,7 @@ impl<'a> Game<'a> {
         }
     }
 
-    fn check_game_over(&mut self) {
-        for x in 0..BOARD_WIDTH {
-            if self.board[0][x] != BOARD_COLOR {
-                *self = Game::new(&self.controls);
-                return;
-            }
-        }
+    fn game_over(&mut self) {
+        *self = Game::new(&self.controls);
     }
 }
